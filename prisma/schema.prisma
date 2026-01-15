@@ -1,0 +1,166 @@
+// Prisma schema for Research Article Manager
+// Normalized database structure based on old/data/backups/articles.json
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// Main Article model
+model Article {
+  id                String   @id // Format: PAPER001, PAPER002, etc.
+  title             String
+  abstract          String
+  conclusion        String?
+
+  // Publication info
+  year              Int
+  date              String   // Publication date YYYY-MM-DD
+  dateAdded         String   // Date added to library YYYY-MM-DD
+  journal           String?
+  doi               String?
+  language          String   @default("English")
+  numPages          Int      @default(0)
+
+  // Research content
+  researchQuestion  String?
+  methodology       String?
+  dataUsed          String?
+  results           String?
+  limitations       String?
+
+  // User notes
+  firstImp          String?  // First impression
+  notes             String?
+  comment           String?
+
+  // User metadata
+  rating            Int      @default(0)
+  read              Boolean  @default(false)
+  favorite          Boolean  @default(false)
+
+  // File references
+  fileName          String   // Base name for PDF and DOCX
+
+  // Relations
+  authors           ArticleAuthor[]
+  keywords          ArticleKeyword[]
+  subjects          ArticleSubject[]
+  tags              ArticleTag[]
+  universities      ArticleUniversity[]
+  companies         ArticleCompany[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+// Authors (normalized)
+model Author {
+  id       Int              @id @default(autoincrement())
+  name     String           @unique
+  articles ArticleAuthor[]
+}
+
+model ArticleAuthor {
+  articleId String
+  authorId  Int
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  author    Author  @relation(fields: [authorId], references: [id])
+
+  @@id([articleId, authorId])
+}
+
+// Keywords (normalized)
+model Keyword {
+  id       Int               @id @default(autoincrement())
+  name     String            @unique
+  articles ArticleKeyword[]
+}
+
+model ArticleKeyword {
+  articleId String
+  keywordId Int
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  keyword   Keyword @relation(fields: [keywordId], references: [id])
+
+  @@id([articleId, keywordId])
+}
+
+// Subjects (normalized)
+model Subject {
+  id       Int              @id @default(autoincrement())
+  name     String           @unique
+  articles ArticleSubject[]
+}
+
+model ArticleSubject {
+  articleId String
+  subjectId Int
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  @@id([articleId, subjectId])
+}
+
+// Tags (normalized)
+model Tag {
+  id       Int          @id @default(autoincrement())
+  name     String       @unique
+  articles ArticleTag[]
+}
+
+model ArticleTag {
+  articleId String
+  tagId     Int
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       Tag     @relation(fields: [tagId], references: [id])
+
+  @@id([articleId, tagId])
+}
+
+// Universities (normalized)
+model University {
+  id       Int                  @id @default(autoincrement())
+  name     String               @unique
+  articles ArticleUniversity[]
+}
+
+model ArticleUniversity {
+  articleId    String
+  universityId Int
+  article      Article    @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  university   University @relation(fields: [universityId], references: [id])
+
+  @@id([articleId, universityId])
+}
+
+// Companies (normalized)
+model Company {
+  id       Int               @id @default(autoincrement())
+  name     String            @unique
+  articles ArticleCompany[]
+}
+
+model ArticleCompany {
+  articleId String
+  companyId Int
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  company   Company @relation(fields: [companyId], references: [id])
+
+  @@id([articleId, companyId])
+}
+
+// User settings
+model UserSettings {
+  id              Int     @id @default(autoincrement())
+  theme           String  @default("light") // "light" or "dark"
+  language        String  @default("en")
+  pdfViewer       String  @default("system") // "system" or "integrated"
+  fontSize        Int     @default(14)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

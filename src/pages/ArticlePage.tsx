@@ -1,0 +1,1011 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Article, ArticleFormData } from '../types/article';
+import { articlesApi } from '../services/api';
+import { useArticlesStore } from '../store/articles';
+import { useSettingsStore } from '../store/settings';
+import { checkTitle, starBar } from '../lib/utils';
+
+export default function ArticlePage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const updateArticle = useArticlesStore((state) => state.updateArticle);
+  const { sidebarCollapsed, setUnsavedChanges, clearUnsavedChanges, theme } = useSettingsStore();
+
+  // Mode: 'view' or 'edit'
+  const [mode, setMode] = useState<'view' | 'edit'>('view');
+  const [article, setArticle] = useState<Article | null>(null);
+  const [originalArticle, setOriginalArticle] = useState<Article | null>(null);
+
+  // Form data for editing
+  const [formData, setFormData] = useState<ArticleFormData>({
+    title: '',
+    abstract: '',
+    conclusion: '',
+    year: new Date().getFullYear(),
+    date: new Date().toISOString().split('T')[0],
+    journal: '',
+    doi: '',
+    language: 'English',
+    numPages: 0,
+    researchQuestion: '',
+    methodology: '',
+    dataUsed: '',
+    results: '',
+    limitations: '',
+    firstImp: '',
+    notes: '',
+    comment: '',
+    rating: 0,
+    read: false,
+    favorite: false,
+    authors: [],
+    keywords: [],
+    subjects: [],
+    tags: [],
+    universities: [],
+    companies: [],
+  });
+
+  // Input states for comma-separated fields
+  const [authorsInput, setAuthorsInput] = useState('');
+  const [keywordsInput, setKeywordsInput] = useState('');
+  const [subjectsInput, setSubjectsInput] = useState('');
+  const [tagsInput, setTagsInput] = useState('');
+  const [universitiesInput, setUniversitiesInput] = useState('');
+  const [companiesInput, setCompaniesInput] = useState('');
+
+  // PDF Upload
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+
+  // UI States
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [pdfBase64, setPdfBase64] = useState<string | null>(null);
+  const [loadingPdf, setLoadingPdf] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingArticle, setLoadingArticle] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
+
+  // PDF panel resizing
+  const [pdfPanelWidth, setPdfPanelWidth] = useState(50); // percentage
+  const isResizing = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Handle mouse move for resizing
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isResizing.current || !containerRef.current) return;
+
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const newWidth = ((containerRect.right - e.clientX) / containerRect.width) * 100;
+
+    // Clamp between 20% and 80%
+    const clampedWidth = Math.min(80, Math.max(20, newWidth));
+    setPdfPanelWidth(clampedWidth);
+  }, []);
+
+  // Handle mouse up to stop resizing
+  const handleMouseUp = useCallback(() => {
+    isResizing.current = false;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }, []);
+
+  // Start resizing
+  const startResizing = useCallback(() => {
+    isResizing.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, []);
+
+  // Add/remove event listeners for resizing
+  useEffect(() => {
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [handleMouseMove, handleMouseUp]);
+
+  // Warn before closing window/tab with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasChanges && mode === 'edit') {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasChanges, mode]);
+
+  // Simple cancel edit - the Sidebar handles the unsaved changes modal
+  const safeCancelEdit = () => {
+    if (hasChanges) {
+      // Show confirmation - reuse the pattern from sidebar
+      if (window.confirm('You have unsaved changes. Are you sure you want to cancel?')) {
+        cancelEdit();
+      }
+    } else {
+      cancelEdit();
+    }
+  };
+
+  // Load article data
+  useEffect(() => {
+    const loadArticle = async () => {
+      if (!id) {
+        setError('No article ID provided');
+        setLoadingArticle(false);
+        return;
+      }
+
+      try {
+        setLoadingArticle(true);
+        const loadedArticle = await articlesApi.getById(id);
+
+        if (!loadedArticle) {
+          setError('Article not found');
+          return;
+        }
+
+        setArticle(loadedArticle);
+        setOriginalArticle(loadedArticle);
+        populateFormData(loadedArticle);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load article');
+      } finally {
+        setLoadingArticle(false);
+      }
+    };
+
+    loadArticle();
+  }, [id]);
+
+  // Populate form data from article
+  const populateFormData = (art: Article) => {
+    setFormData({
+      title: art.title,
+      abstract: art.abstract,
+      conclusion: art.conclusion || '',
+      year: art.year,
+      date: art.date,
+      journal: art.journal || '',
+      doi: art.doi || '',
+      language: art.language || 'English',
+      numPages: art.numPages || 0,
+      researchQuestion: art.researchQuestion || '',
+      methodology: art.methodology || '',
+      dataUsed: art.dataUsed || '',
+      results: art.results || '',
+      limitations: art.limitations || '',
+      firstImp: art.firstImp || '',
+      notes: art.notes || '',
+      comment: art.comment || '',
+      rating: art.rating,
+      read: art.read,
+      favorite: art.favorite,
+      authors: art.authors?.map(a => a.name) || [],
+      keywords: art.keywords?.map(k => k.name) || [],
+      subjects: art.subjects?.map(s => s.name) || [],
+      tags: art.tags?.map(t => t.name) || [],
+      universities: art.universities?.map(u => u.name) || [],
+      companies: art.companies?.map(c => c.name) || [],
+    });
+
+    setAuthorsInput(art.authors?.map(a => a.name).join(', ') || '');
+    setKeywordsInput(art.keywords?.map(k => k.name).join(', ') || '');
+    setSubjectsInput(art.subjects?.map(s => s.name).join(', ') || '');
+    setTagsInput(art.tags?.map(t => t.name).join(', ') || '');
+    setUniversitiesInput(art.universities?.map(u => u.name).join(', ') || '');
+    setCompaniesInput(art.companies?.map(c => c.name).join(', ') || '');
+  };
+
+  // Track changes
+  useEffect(() => {
+    if (mode === 'edit' && originalArticle) {
+      const formChanged =
+        // Basic info
+        formData.title !== originalArticle.title ||
+        formData.abstract !== originalArticle.abstract ||
+        formData.conclusion !== (originalArticle.conclusion || '') ||
+        formData.date !== originalArticle.date ||
+        formData.journal !== (originalArticle.journal || '') ||
+        formData.doi !== (originalArticle.doi || '') ||
+        formData.language !== (originalArticle.language || 'English') ||
+        formData.numPages !== (originalArticle.numPages || 0) ||
+        // Research content
+        formData.researchQuestion !== (originalArticle.researchQuestion || '') ||
+        formData.methodology !== (originalArticle.methodology || '') ||
+        formData.dataUsed !== (originalArticle.dataUsed || '') ||
+        formData.results !== (originalArticle.results || '') ||
+        formData.limitations !== (originalArticle.limitations || '') ||
+        // Notes & comments
+        formData.firstImp !== (originalArticle.firstImp || '') ||
+        formData.notes !== (originalArticle.notes || '') ||
+        formData.comment !== (originalArticle.comment || '') ||
+        // Status
+        formData.rating !== originalArticle.rating ||
+        formData.read !== originalArticle.read ||
+        formData.favorite !== originalArticle.favorite ||
+        // Comma-separated inputs
+        authorsInput !== (originalArticle.authors?.map(a => a.name).join(', ') || '') ||
+        keywordsInput !== (originalArticle.keywords?.map(k => k.name).join(', ') || '') ||
+        subjectsInput !== (originalArticle.subjects?.map(s => s.name).join(', ') || '') ||
+        tagsInput !== (originalArticle.tags?.map(t => t.name).join(', ') || '') ||
+        universitiesInput !== (originalArticle.universities?.map(u => u.name).join(', ') || '') ||
+        companiesInput !== (originalArticle.companies?.map(c => c.name).join(', ') || '') ||
+        // PDF
+        pdfFile !== null;
+
+      setHasChanges(formChanged);
+
+      if (formChanged) {
+        setUnsavedChanges(true, saveChanges);
+      } else {
+        clearUnsavedChanges();
+      }
+    } else {
+      clearUnsavedChanges();
+    }
+  }, [mode, formData, authorsInput, keywordsInput, subjectsInput, tagsInput, universitiesInput, companiesInput, pdfFile, originalArticle]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      clearUnsavedChanges();
+    };
+  }, []);
+
+  // Load PDF when preview is shown
+  useEffect(() => {
+    const loadPdf = async () => {
+      if (showPdfPreview && id && !pdfBase64) {
+        setLoadingPdf(true);
+        try {
+          const base64 = await window.electronAPI.files.getPdfBase64(id);
+          setPdfBase64(base64);
+        } catch (err) {
+          console.error('Error loading PDF:', err);
+        } finally {
+          setLoadingPdf(false);
+        }
+      }
+    };
+
+    loadPdf();
+  }, [showPdfPreview, id]);
+
+  // Enter edit mode
+  const enterEditMode = () => {
+    setMode('edit');
+    setSuccess(false);
+    setError(null);
+  };
+
+  // Cancel editing
+  const cancelEdit = () => {
+    if (originalArticle) {
+      populateFormData(originalArticle);
+    }
+    setPdfFile(null);
+    setHasChanges(false);
+    setMode('view');
+    setError(null);
+  };
+
+  // Save changes
+  const saveChanges = async () => {
+    if (!id || !article) return;
+
+    setError(null);
+    setSuccess(false);
+
+    if (!formData.title.trim()) {
+      setError('Title is required');
+      return;
+    }
+
+    if (authorsInput.trim().length === 0) {
+      setError('At least one author is required');
+      return;
+    }
+
+    if (!formData.abstract.trim()) {
+      setError('Abstract is required');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const authors = authorsInput.split(',').map((s) => s.trim()).filter(Boolean);
+      const keywords = keywordsInput.split(',').map((s) => s.trim()).filter(Boolean);
+      const subjects = subjectsInput.split(',').map((s) => s.trim()).filter(Boolean);
+      const tags = tagsInput.split(',').map((s) => s.trim()).filter(Boolean);
+      const universities = universitiesInput.split(',').map((s) => s.trim()).filter(Boolean);
+      const companies = companiesInput.split(',').map((s) => s.trim()).filter(Boolean);
+
+      const submissionData: Partial<ArticleFormData> = {
+        ...formData,
+        title: checkTitle(formData.title),
+        authors,
+        keywords,
+        subjects,
+        tags,
+        universities,
+        companies,
+      };
+
+      const updatedArticle = await articlesApi.update(id, submissionData);
+
+      if (pdfFile) {
+        await articlesApi.uploadPdf(id, pdfFile);
+      }
+
+      await articlesApi.generateNote(updatedArticle);
+
+      updateArticle(id, updatedArticle);
+      setArticle(updatedArticle);
+      setOriginalArticle(updatedArticle);
+      populateFormData(updatedArticle);
+
+      setSuccess(true);
+      setHasChanges(false);
+      setPdfFile(null);
+      setMode('view');
+
+      setTimeout(() => setSuccess(false), 5000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to update article');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle PDF drop
+  const handlePdfDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file && file.type === 'application/pdf') {
+      setPdfFile(file);
+    }
+  };
+
+  // Open PDF in system viewer
+  const openPdf = async () => {
+    if (!id) return;
+    try {
+      await articlesApi.openPdf(id);
+    } catch (err: any) {
+      setPdfError(err.message || 'PDF not found for this article');
+      setTimeout(() => setPdfError(null), 3000);
+    }
+  };
+
+  // Open Note in system viewer
+  const openNote = async () => {
+    if (!id) return;
+    try {
+      await articlesApi.openNote(id);
+    } catch (err: any) {
+      setError('Failed to open note: ' + err.message);
+    }
+  };
+
+  // Open DOI link
+  const openDoi = () => {
+    if (article?.doi) {
+      const doiUrl = article.doi.startsWith('http')
+        ? article.doi
+        : `https://doi.org/${article.doi}`;
+      window.open(doiUrl, '_blank');
+    }
+  };
+
+  // Render view field
+  const renderViewField = (label: string, value: string | number | undefined) => {
+    const displayValue = value ?? '';
+    return (
+      <div className="mb-3">
+        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">
+          {label}
+        </label>
+        <p className="text-gray-900 dark:text-white">
+          {displayValue || <span className="text-gray-400 italic text-sm">Not specified</span>}
+        </p>
+      </div>
+    );
+  };
+
+  // Render edit field
+  const renderEditField = (
+    label: string,
+    field: keyof ArticleFormData,
+    type: 'text' | 'textarea' | 'number' | 'date' | 'select' = 'text',
+    options?: { value: string; label: string }[],
+    rows?: number,
+    required?: boolean
+  ) => {
+    return (
+      <div className="mb-3">
+        <label className="block text-sm font-medium mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        {type === 'textarea' ? (
+          <textarea
+            value={formData[field] as string}
+            onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+            rows={rows || 3}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            required={required}
+          />
+        ) : type === 'select' && options ? (
+          <select
+            value={formData[field] as string}
+            onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            {options.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        ) : type === 'number' ? (
+          <input
+            type="number"
+            value={formData[field] as number}
+            onChange={(e) => setFormData({ ...formData, [field]: parseInt(e.target.value) || 0 })}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+        ) : type === 'date' ? (
+          <input
+            type="date"
+            value={formData[field] as string}
+            max={new Date().toISOString().split('T')[0]}
+            onChange={(e) => {
+              const newDate = e.target.value;
+              setFormData({
+                ...formData,
+                [field]: newDate,
+                year: newDate ? parseInt(newDate.split('-')[0]) : formData.year
+              });
+            }}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            required={required}
+          />
+        ) : (
+          <input
+            type="text"
+            value={formData[field] as string}
+            onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            required={required}
+          />
+        )}
+      </div>
+    );
+  };
+
+  // Render comma-separated input field
+  const renderCommaInput = (
+    label: string,
+    value: string,
+    setValue: (v: string) => void,
+    placeholder: string,
+    required?: boolean
+  ) => {
+    return (
+      <div className="mb-3">
+        <label className="block text-sm font-medium mb-1">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          required={required}
+        />
+      </div>
+    );
+  };
+
+  // Loading state
+  if (loadingArticle) {
+    return (
+      <div className="p-8 max-w-6xl mx-auto">
+        <div className="text-center py-12">
+          <p className="text-lg">Loading article...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && !article) {
+    return (
+      <div className="p-8 max-w-6xl mx-auto">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+        <button
+          onClick={() => navigate('/library')}
+          className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+        >
+          ← Back to Library
+        </button>
+      </div>
+    );
+  }
+
+  if (!article) return null;
+
+  return (
+    <div className="flex h-full" ref={containerRef}>
+      {/* Main Content */}
+      <div
+        className="flex flex-col overflow-hidden relative"
+        style={{ width: showPdfPreview ? `${100 - pdfPanelWidth}%` : '100%' }}
+      >
+        {/* ============= STICKY TITLE HEADER ============= */}
+        <div className="sticky top-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-8 py-4 shadow-sm">
+          {mode === 'view' ? (
+            <div className="flex items-center gap-3">
+              <span className={article.read ? 'text-blue-600' : 'text-gray-400'}>
+                {article.read ? '👁️' : '📌'}
+              </span>
+              <span className={article.favorite ? 'text-yellow-500' : 'text-gray-400'}>
+                {article.favorite ? '⭐' : '☆'}
+              </span>
+              <h1 className="text-xl font-bold dark:text-white truncate">{article.title}</h1>
+            </div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-lg">
+                <input
+                  type="checkbox"
+                  checked={formData.read}
+                  onChange={(e) => setFormData({ ...formData, read: e.target.checked })}
+                  className="w-4 h-4 rounded accent-blue-600"
+                  style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }}
+                />
+                <span className="dark:text-white text-sm">👁️</span>
+              </label>
+              <label className="flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-lg">
+                <input
+                  type="checkbox"
+                  checked={formData.favorite}
+                  onChange={(e) => setFormData({ ...formData, favorite: e.target.checked })}
+                  className="w-4 h-4 rounded accent-blue-600"
+                  style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }}
+                />
+                <span className="dark:text-white text-sm">⭐</span>
+              </label>
+              <input
+                type="text"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="flex-1 px-3 py-1.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary font-bold"
+                placeholder="Title"
+                required
+              />
+            </div>
+          )}
+
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-8">
+
+          {/* ============= INFO GRID: 3 Columns ============= */}
+          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+            <h2 className="text-lg font-semibold mb-4">📋 Informations</h2>
+            <div className="grid grid-cols-3 gap-6">
+              {/* Column 1 (1/3): ID, Year, Journal, Language, Pages */}
+              <div className="space-y-2">
+                {mode === 'view' ? (
+                  <>
+                    {renderViewField('ID', article.id)}
+                    {renderViewField('Year', article.year)}
+                    {renderViewField('Journal', article.journal)}
+                    {renderViewField('Language', article.language)}
+                    {renderViewField('Pages', article.numPages)}
+                  </>
+                ) : (
+                  <>
+                    <div className="mb-3">
+                      <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">ID</label>
+                      <p className="text-gray-900 dark:text-white font-mono">{article.id}</p>
+                    </div>
+                    {renderEditField('Publication Date', 'date', 'date', undefined, undefined, true)}
+                    {renderEditField('Journal', 'journal')}
+                    {renderEditField('Language', 'language', 'select', [
+                      { value: 'English', label: 'English' },
+                      { value: 'French', label: 'French' },
+                      { value: 'Other', label: 'Other' },
+                    ])}
+                    {renderEditField('Number of Pages', 'numPages', 'number')}
+                  </>
+                )}
+              </div>
+
+              {/* Column 2+3 (2/3): Authors, Unis, Companies, Rating, DOI */}
+              <div className="col-span-2 space-y-2">
+                {mode === 'view' ? (
+                  <>
+                    {renderViewField('Authors', authorsInput)}
+                    {renderViewField('Universities', universitiesInput)}
+                    {renderViewField('Companies', companiesInput)}
+                    <div className="mb-3">
+                      <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">
+                        Rating
+                      </label>
+                      <p className="text-xl">{starBar(article.rating)} ({article.rating}/5)</p>
+                    </div>
+                    <div className="mb-3">
+                      <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">
+                        DOI
+                      </label>
+                      {article.doi ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-gray-900 dark:text-white break-all">{article.doi}</span>
+                          <div className="flex gap-2 shrink-0">
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(article.doi || '');
+                              }}
+                              className="text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-2 py-0.5 rounded transition-colors whitespace-nowrap"
+                              title={`Copy DOI: ${article.doi}`}
+                            >
+                              📋 Copy
+                            </button>
+                            <button
+                              onClick={async () => {
+                                try {
+                                  const doiUrl = article.doi?.startsWith('http')
+                                    ? article.doi
+                                    : `https://doi.org/${article.doi}`;
+                                  await articlesApi.openUrl(doiUrl);
+                                } catch (error) {
+                                  console.error('Error opening DOI:', error);
+                                  const doiUrl = article.doi?.startsWith('http')
+                                    ? article.doi
+                                    : `https://doi.org/${article.doi}`;
+                                  window.open(doiUrl, '_blank');
+                                }
+                              }}
+                              className="text-xs bg-blue-500 dark:bg-blue-600 text-white hover:bg-blue-600 dark:hover:bg-blue-700 px-2 py-0.5 rounded transition-colors whitespace-nowrap"
+                              title={`Open DOI: ${article.doi}`}
+                            >
+                              🔗 Open
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 italic text-sm">Not specified</span>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {renderCommaInput('Authors', authorsInput, setAuthorsInput, 'John Doe, Jane Smith', true)}
+                    {renderCommaInput('Universities', universitiesInput, setUniversitiesInput, 'MIT, Stanford')}
+                    {renderCommaInput('Companies', companiesInput, setCompaniesInput, 'Google, Microsoft')}
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium mb-1">Rating</label>
+                      <div className="flex items-center gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setFormData({ ...formData, rating: star })}
+                            className="text-2xl"
+                          >
+                            {star <= formData.rating ? '⭐' : '☆'}
+                          </button>
+                        ))}
+                        {formData.rating > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => setFormData({ ...formData, rating: 0 })}
+                            className="ml-2 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                          >
+                            Reset
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {renderEditField('DOI', 'doi')}
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* ============= PDF SECTION ============= */}
+          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+            <h2 className="text-lg font-semibold mb-4">📄 PDF</h2>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={openPdf}
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90"
+              >
+                Open PDF
+              </button>
+              <button
+                onClick={() => setShowPdfPreview(!showPdfPreview)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
+              >
+                {showPdfPreview ? 'Hide Preview' : 'Show Preview'}
+              </button>
+              <button
+                onClick={openNote}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:opacity-90"
+              >
+                Open Note
+              </button>
+
+              {/* PDF Drop zone - inline à droite des boutons en mode edit */}
+              {mode === 'edit' && (
+                <div
+                  onDrop={handlePdfDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                  className="flex-1 ml-4 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-center hover:border-primary transition-colors cursor-pointer"
+                >
+                  {pdfFile ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <p className="text-green-600 font-medium text-sm">{pdfFile.name}</p>
+                      <button
+                        type="button"
+                        onClick={() => setPdfFile(null)}
+                        className="text-red-500 text-sm hover:text-red-700"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-gray-500 text-sm">Drop PDF to replace</span>
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                        className="hidden"
+                        id="pdf-upload-inline"
+                      />
+                      <label
+                        htmlFor="pdf-upload-inline"
+                        className="px-2 py-1 text-xs bg-gray-200 dark:bg-gray-600 rounded cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-500"
+                      >
+                        Browse
+                      </label>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* ============= CLASSIFICATION: Keywords & Tags ============= */}
+          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+            <h2 className="text-lg font-semibold mb-4">🏷️ Classification</h2>
+            {mode === 'view' ? (
+              <div className="grid grid-cols-2 gap-6">
+                {renderViewField('Keywords', keywordsInput)}
+                {renderViewField('Tags', tagsInput)}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-6">
+                {renderCommaInput('Keywords', keywordsInput, setKeywordsInput, 'machine learning, neural networks')}
+                {renderCommaInput('Tags', tagsInput, setTagsInput, 'important, read later')}
+              </div>
+            )}
+          </section>
+
+          {/* ============= ABSTRACT & CONCLUSION ============= */}
+          <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+            <h2 className="text-lg font-semibold mb-4">📝 Abstract & Conclusion</h2>
+            {mode === 'view' ? (
+              <>
+                <div className="mb-4">
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Abstract</label>
+                  <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{article.abstract || <span className="text-gray-400 italic">Not specified</span>}</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Conclusion</label>
+                  <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{article.conclusion || <span className="text-gray-400 italic">Not specified</span>}</p>
+                </div>
+              </>
+            ) : (
+              <>
+                {renderEditField('Abstract', 'abstract', 'textarea', undefined, 5, true)}
+                {renderEditField('Conclusion', 'conclusion', 'textarea', undefined, 4)}
+              </>
+            )}
+          </section>
+
+          {/* ============= RESEARCH CONTENT ============= */}
+          <details className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+            <summary className="text-lg font-semibold cursor-pointer">🔬 Research Content</summary>
+            <div className="mt-4">
+              {mode === 'view' ? (
+                <>
+                  {renderViewField('Topics Covered', subjectsInput)}
+                  {renderViewField('Research Question', article.researchQuestion)}
+                  {renderViewField('Methodology', article.methodology)}
+                  {renderViewField('Data Used', article.dataUsed)}
+                  {renderViewField('Results', article.results)}
+                  {renderViewField('Limitations', article.limitations)}
+                </>
+              ) : (
+                <>
+                  {renderCommaInput('Topics Covered', subjectsInput, setSubjectsInput, 'Deep Learning, Computer Vision')}
+                  {renderEditField('Research Question', 'researchQuestion', 'textarea', undefined, 2)}
+                  {renderEditField('Methodology', 'methodology', 'textarea', undefined, 3)}
+                  {renderEditField('Data Used', 'dataUsed', 'textarea', undefined, 2)}
+                  {renderEditField('Results', 'results', 'textarea', undefined, 3)}
+                  {renderEditField('Limitations', 'limitations', 'textarea', undefined, 2)}
+                </>
+              )}
+            </div>
+          </details>
+
+          {/* ============= NOTES & COMMENTS ============= */}
+          <details className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6" open>
+            <summary className="text-lg font-semibold cursor-pointer">📌 Notes & Comments</summary>
+            <div className="mt-4">
+              {mode === 'view' ? (
+                <>
+                  {renderViewField('First Impressions', article.firstImp)}
+                  {renderViewField('Personal Notes', article.notes)}
+                  {renderViewField('Comments', article.comment)}
+                </>
+              ) : (
+                <>
+                  {renderEditField('First Impressions', 'firstImp', 'textarea', undefined, 3)}
+                  {renderEditField('Personal Notes', 'notes', 'textarea', undefined, 3)}
+                  {renderEditField('Comments', 'comment', 'textarea', undefined, 3)}
+                </>
+              )}
+            </div>
+          </details>
+
+          {/* ============= METADATA ============= */}
+          <section className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm text-gray-600 dark:text-gray-400">
+            <p>Created: {article.dateAdded ? new Date(article.dateAdded).toLocaleDateString('en-US') : 'N/A'}</p>
+            <p>Last updated: {article.updatedAt ? new Date(article.updatedAt).toLocaleString('en-US') : 'N/A'}</p>
+          </section>
+        </div>
+
+        {/* Error Message - Floating above bottom bar */}
+        {error && (
+          <div className="absolute bottom-20 left-0 right-0 flex justify-center pointer-events-none z-50">
+            <div className="bg-red-500 text-white px-5 py-2.5 rounded-lg shadow-lg flex items-center gap-3 pointer-events-auto">
+              <span>{error}</span>
+              <button
+                onClick={() => setError(null)}
+                className="text-white hover:text-gray-200"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Success Message - Floating above bottom bar */}
+        {success && (
+          <div className="absolute bottom-20 left-0 right-0 flex justify-center pointer-events-none z-50">
+            <div className="bg-green-500 text-white px-5 py-2.5 rounded-lg shadow-lg font-medium pointer-events-auto">
+              Article updated successfully!
+            </div>
+          </div>
+        )}
+
+        {/* Fixed Bottom Buttons */}
+        <div
+          className="h-16 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 shadow-lg z-50 flex items-center shrink-0"
+        >
+          <div className="flex-1 flex gap-3">
+            {mode === 'view' ? (
+              <>
+                <button
+                  onClick={() => navigate('/library')}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
+                  ← Back to Library
+                </button>
+                <button
+                  onClick={enterEditMode}
+                  className="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600"
+                >
+                  Edit Article
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={safeCancelEdit}
+                  className="px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveChanges}
+                  disabled={loading}
+                  className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
+                >
+                  {loading ? 'Saving...' : 'Save Changes'}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+
+      {/* PDF Preview Panel */}
+      {showPdfPreview && (
+        <div
+          className="bg-gray-100 dark:bg-gray-900 flex flex-col"
+          style={{ width: `${pdfPanelWidth}%` }}
+        >
+          <div className="h-10 px-4 bg-gray-200 dark:bg-gray-800 flex justify-between items-center border-b border-gray-300 dark:border-gray-700 shrink-0">
+            <h3 className="text-gray-900 dark:text-white font-medium">PDF Preview</h3>
+            <button
+              onClick={() => setShowPdfPreview(false)}
+              className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl"
+            >
+              ✕
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-hidden">
+            {loadingPdf ? (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-600 dark:text-gray-400">Loading PDF...</p>
+              </div>
+            ) : pdfBase64 ? (
+              <object
+                data={`data:application/pdf;base64,${pdfBase64}`}
+                type="application/pdf"
+                className="w-full h-full"
+              >
+                <p className="text-gray-600 dark:text-gray-400 text-center p-4">
+                  Unable to display PDF. <button onClick={openPdf} className="text-blue-500 underline">Open in external viewer</button>
+                </p>
+              </object>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-gray-600 dark:text-gray-400 text-center">
+                  No PDF available for this article.<br/>
+                  Upload a PDF to enable preview.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* PDF Error Toast */}
+      {pdfError && (
+        <div className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-[100]">
+          <div className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+            <span>{pdfError}</span>
+            <button
+              onClick={() => setPdfError(null)}
+              className="text-white hover:text-gray-200 ml-2"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
