@@ -17,8 +17,6 @@ export const mainConfig: Configuration = {
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
   },
-  externals: {
-    // Exclude better-sqlite3 native module from webpack bundling
-    'better-sqlite3': 'commonjs better-sqlite3',
-  },
+  // Note: better-sqlite3 is handled by @vercel/webpack-asset-relocator-loader
+  // in webpack.rules.ts - do NOT add it to externals or it won't be packaged
 };
