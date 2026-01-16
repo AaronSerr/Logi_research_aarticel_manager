@@ -18,10 +18,14 @@ const config: ForgeConfig = {
     // App metadata
     name: 'Research Article Manager',
     executableName: 'research-article-manager',
+    // App icon (without extension - Electron Forge adds .ico/.icns automatically)
+    icon: path.resolve(__dirname, 'assets/icon'),
     // Extra resources outside asar archive (templates need to be accessible)
     extraResource: [
       path.resolve(__dirname, 'src/electron/templates')
     ],
+    // Mac specific - use ad-hoc signing to avoid "damaged app" errors
+    osxSign: {},
     // Windows specific metadata
     win32metadata: {
       CompanyName: 'AaronSerr',
