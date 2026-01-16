@@ -24,8 +24,12 @@ const config: ForgeConfig = {
     extraResource: [
       path.resolve(__dirname, 'src/electron/templates')
     ],
-    // Mac specific - use ad-hoc signing to avoid "damaged app" errors
-    osxSign: {},
+    // Mac specific - ad-hoc signing with required entitlements
+    osxSign: {
+      identity: '-', // Ad-hoc signing (no Apple Developer account needed)
+      entitlements: path.resolve(__dirname, 'entitlements.plist'),
+      'entitlements-inherit': path.resolve(__dirname, 'entitlements.plist'),
+    },
     // Windows specific metadata
     win32metadata: {
       CompanyName: 'AaronSerr',
