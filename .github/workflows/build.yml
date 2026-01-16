@@ -34,7 +34,7 @@ jobs:
           if-no-files-found: error
 
   build-mac-intel:
-    runs-on: macos-14  # Use macos-14 with x64 arch for Intel compatibility
+    runs-on: macos-15-intel  # Intel x64 runner (available until 2027)
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
