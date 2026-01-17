@@ -4,6 +4,7 @@ import { useArticlesStore } from '../store/articles';
 import { useSettingsStore } from '../store/settings';
 import { articlesApi } from '../services/api';
 import { starBar } from '../lib/utils';
+import { formatDate, formatDateTime } from '../utils/text';
 
 export default function Library() {
   const navigate = useNavigate();
@@ -701,10 +702,10 @@ export default function Library() {
               <div className="px-2">
                 <div className="flex justify-between mb-0.5">
                   <span className="text-xs font-medium text-red-600 dark:text-red-400">
-                    {new Date(filterDateAddedMin || (articles.length > 0 ? Math.min(...articles.map(a => a.dateAdded ? new Date(a.dateAdded).getTime() : Infinity).filter(t => t !== Infinity)) : new Date().getTime())).toLocaleDateString('en-US')}
+                    {new Date(filterDateAddedMin || (articles.length > 0 ? Math.min(...articles.map(a => a.dateAdded ? new Date(a.dateAdded).getTime() : Infinity).filter(t => t !== Infinity)) : new Date().getTime())).toLocaleDateString('fr-FR')}
                   </span>
                   <span className="text-xs font-medium text-red-600 dark:text-red-400">
-                    {new Date(filterDateAddedMax || (articles.length > 0 ? Math.max(...articles.map(a => a.dateAdded ? new Date(a.dateAdded).getTime() : 0)) : new Date().getTime())).toLocaleDateString('en-US')}
+                    {new Date(filterDateAddedMax || (articles.length > 0 ? Math.max(...articles.map(a => a.dateAdded ? new Date(a.dateAdded).getTime() : 0)) : new Date().getTime())).toLocaleDateString('fr-FR')}
                   </span>
                 </div>
                 <div className="flex-1 relative py-1">
@@ -766,10 +767,10 @@ export default function Library() {
                 </div>
                 <div className="flex justify-between mt-0.5">
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {new Date(articles.length > 0 ? Math.min(...articles.map(a => a.dateAdded ? new Date(a.dateAdded).getTime() : Infinity).filter(t => t !== Infinity)) : new Date().getTime()).toLocaleDateString('en-US')}
+                    {new Date(articles.length > 0 ? Math.min(...articles.map(a => a.dateAdded ? new Date(a.dateAdded).getTime() : Infinity).filter(t => t !== Infinity)) : new Date().getTime()).toLocaleDateString('fr-FR')}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {new Date(articles.length > 0 ? Math.max(...articles.map(a => a.dateAdded ? new Date(a.dateAdded).getTime() : 0)) : new Date().getTime()).toLocaleDateString('en-US')}
+                    {new Date(articles.length > 0 ? Math.max(...articles.map(a => a.dateAdded ? new Date(a.dateAdded).getTime() : 0)) : new Date().getTime()).toLocaleDateString('fr-FR')}
                   </span>
                 </div>
               </div>
@@ -1139,10 +1140,10 @@ export default function Library() {
                     {article.read ? '👁️ Read' : '📌 Unread'}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    {article.dateAdded ? new Date(article.dateAdded).toLocaleDateString('en-US') : '-'}
+                    {formatDate(article.dateAdded)}
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    {article.updatedAt ? new Date(article.updatedAt).toLocaleDateString('en-US') : '-'}
+                    {formatDate(article.updatedAt)}
                   </td>
                 </tr>
               ))
@@ -1185,7 +1186,7 @@ export default function Library() {
                       <strong>📋 ID:</strong> {selectedArticleData.id}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      <strong>📅 Year:</strong> {selectedArticleData.year} ({selectedArticleData.date})
+                      <strong>📅 Date:</strong> {formatDate(selectedArticleData.date)}
                     </p>
                     {selectedArticleData.journal && (
                       <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -1354,7 +1355,7 @@ export default function Library() {
                 {/* Last modification */}
                 {selectedArticleData.updatedAt && (
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    🕒 Last modified: {new Date(selectedArticleData.updatedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    🕒 Last modified: {formatDateTime(selectedArticleData.updatedAt)}
                   </p>
                 )}
 

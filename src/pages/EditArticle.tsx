@@ -5,6 +5,8 @@ import { articlesApi } from '../services/api';
 import { useArticlesStore } from '../store/articles';
 import { useSettingsStore } from '../store/settings';
 import { checkTitle } from '../lib/utils';
+import { getPdfPageCount } from '../utils/pdf';
+import { cleanText } from '../utils/text';
 
 export default function EditArticle() {
   const { id } = useParams<{ id: string }>();
@@ -223,11 +225,22 @@ export default function EditArticle() {
     }
   };
 
+  const handlePdfSelect = async (file: File) => {
+    setPdfFile(file);
+    // Auto-extract page count from PDF
+    try {
+      const pageCount = await getPdfPageCount(file);
+      setFormData(prev => ({ ...prev, numPages: pageCount }));
+    } catch (err) {
+      console.error('Could not extract page count:', err);
+    }
+  };
+
   const handlePdfDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.type === 'application/pdf') {
-      setPdfFile(file);
+      handlePdfSelect(file);
     }
   };
 
@@ -263,58 +276,77 @@ export default function EditArticle() {
   ) => {
     return (
       <div className="mb-3">
-        <label className="block text-sm font-medium mb-1">
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
         {type === 'textarea' ? (
-          <textarea
-            value={formData[field] as string}
-            onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
-            rows={rows || 3}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            required={required}
-          />
-        ) : type === 'select' && options ? (
-          <select
-            value={formData[field] as string}
-            onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          >
-            {options.map(opt => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        ) : type === 'number' ? (
-          <input
-            type="number"
-            value={formData[field] as number}
-            onChange={(e) => setFormData({ ...formData, [field]: parseInt(e.target.value) || 0 })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-        ) : type === 'date' ? (
-          <input
-            type="date"
-            value={formData[field] as string}
-            max={new Date().toISOString().split('T')[0]}
-            onChange={(e) => {
-              const newDate = e.target.value;
-              setFormData({
-                ...formData,
-                [field]: newDate,
-                year: newDate ? parseInt(newDate.split('-')[0]) : formData.year
-              });
-            }}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            required={required}
-          />
+          <>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium">
+                {label} {required && <span className="text-red-500">*</span>}
+              </label>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, [field]: cleanText(formData[field] as string) })}
+                className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                title="Clean text formatting (fix PDF copy-paste issues)"
+              >
+                🧹 Clean
+              </button>
+            </div>
+            <textarea
+              value={formData[field] as string}
+              onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+              rows={rows || 3}
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              required={required}
+            />
+          </>
         ) : (
-          <input
-            type="text"
-            value={formData[field] as string}
-            onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            required={required}
-          />
+          <>
+            <label className="block text-sm font-medium mb-1">
+              {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            {type === 'select' && options ? (
+              <select
+                value={formData[field] as string}
+                onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {options.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            ) : type === 'number' ? (
+              <input
+                type="number"
+                value={formData[field] as number}
+                onChange={(e) => setFormData({ ...formData, [field]: parseInt(e.target.value) || 0 })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            ) : type === 'date' ? (
+              <input
+                type="date"
+                value={formData[field] as string}
+                max={new Date().toISOString().split('T')[0]}
+                onChange={(e) => {
+                  const newDate = e.target.value;
+                  setFormData({
+                    ...formData,
+                    [field]: newDate,
+                    year: newDate ? parseInt(newDate.split('-')[0]) : formData.year
+                  });
+                }}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                required={required}
+              />
+            ) : (
+              <input
+                type="text"
+                value={formData[field] as string}
+                onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                required={required}
+              />
+            )}
+          </>
         )}
       </div>
     );
@@ -530,7 +562,7 @@ export default function EditArticle() {
                       <input
                         type="file"
                         accept="application/pdf"
-                        onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                        onChange={(e) => e.target.files?.[0] && handlePdfSelect(e.target.files[0])}
                         className="hidden"
                         id="pdf-upload-inline"
                       />

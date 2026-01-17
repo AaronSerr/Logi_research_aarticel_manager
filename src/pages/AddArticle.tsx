@@ -5,6 +5,8 @@ import { articlesApi } from '../services/api';
 import { useArticlesStore } from '../store/articles';
 import { useSettingsStore } from '../store/settings';
 import { checkTitle } from '../lib/utils';
+import { getPdfPageCount } from '../utils/pdf';
+import { cleanText } from '../utils/text';
 
 export default function AddArticle() {
   const navigate = useNavigate();
@@ -145,11 +147,22 @@ export default function AddArticle() {
     }
   };
 
+  const handlePdfSelect = async (file: File) => {
+    setPdfFile(file);
+    // Auto-extract page count from PDF
+    try {
+      const pageCount = await getPdfPageCount(file);
+      setFormData(prev => ({ ...prev, numPages: pageCount }));
+    } catch (err) {
+      console.error('Could not extract page count:', err);
+    }
+  };
+
   const handlePdfDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.type === 'application/pdf') {
-      setPdfFile(file);
+      handlePdfSelect(file);
     }
   };
 
@@ -238,9 +251,19 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Abstract <span className="text-red-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">
+                  Abstract <span className="text-red-500">*</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, abstract: cleanText(formData.abstract) })}
+                  className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                  title="Clean text formatting (fix PDF copy-paste issues)"
+                >
+                  🧹 Clean
+                </button>
+              </div>
               <textarea
                 value={formData.abstract}
                 onChange={(e) => setFormData({ ...formData, abstract: e.target.value })}
@@ -301,7 +324,7 @@ export default function AddArticle() {
                 <input
                   type="file"
                   accept="application/pdf"
-                  onChange={(e) => setPdfFile(e.target.files?.[0] || null)}
+                  onChange={(e) => e.target.files?.[0] && handlePdfSelect(e.target.files[0])}
                   className="hidden"
                   id="pdf-upload"
                 />
@@ -371,7 +394,17 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Conclusion</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">Conclusion</label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, conclusion: cleanText(formData.conclusion) })}
+                  className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                  title="Clean text formatting"
+                >
+                  🧹 Clean
+                </button>
+              </div>
               <textarea
                 value={formData.conclusion}
                 onChange={(e) => setFormData({ ...formData, conclusion: e.target.value })}
@@ -423,7 +456,17 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Research Question</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">Research Question</label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, researchQuestion: cleanText(formData.researchQuestion) })}
+                  className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                  title="Clean text formatting"
+                >
+                  🧹 Clean
+                </button>
+              </div>
               <textarea
                 value={formData.researchQuestion}
                 onChange={(e) => setFormData({ ...formData, researchQuestion: e.target.value })}
@@ -433,7 +476,17 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Methodology</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">Methodology</label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, methodology: cleanText(formData.methodology) })}
+                  className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                  title="Clean text formatting"
+                >
+                  🧹 Clean
+                </button>
+              </div>
               <textarea
                 value={formData.methodology}
                 onChange={(e) => setFormData({ ...formData, methodology: e.target.value })}
@@ -443,7 +496,17 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Data Used</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">Data Used</label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, dataUsed: cleanText(formData.dataUsed) })}
+                  className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                  title="Clean text formatting"
+                >
+                  🧹 Clean
+                </button>
+              </div>
               <textarea
                 value={formData.dataUsed}
                 onChange={(e) => setFormData({ ...formData, dataUsed: e.target.value })}
@@ -453,7 +516,17 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Results</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">Results</label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, results: cleanText(formData.results) })}
+                  className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                  title="Clean text formatting"
+                >
+                  🧹 Clean
+                </button>
+              </div>
               <textarea
                 value={formData.results}
                 onChange={(e) => setFormData({ ...formData, results: e.target.value })}
@@ -463,7 +536,17 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Limitations</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">Limitations</label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, limitations: cleanText(formData.limitations) })}
+                  className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                  title="Clean text formatting"
+                >
+                  🧹 Clean
+                </button>
+              </div>
               <textarea
                 value={formData.limitations}
                 onChange={(e) => setFormData({ ...formData, limitations: e.target.value })}
@@ -507,7 +590,17 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">First Impressions</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">First Impressions</label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, firstImp: cleanText(formData.firstImp) })}
+                  className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                  title="Clean text formatting"
+                >
+                  🧹 Clean
+                </button>
+              </div>
               <textarea
                 value={formData.firstImp}
                 onChange={(e) => setFormData({ ...formData, firstImp: e.target.value })}
@@ -517,7 +610,17 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Personal Notes</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">Personal Notes</label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, notes: cleanText(formData.notes) })}
+                  className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                  title="Clean text formatting"
+                >
+                  🧹 Clean
+                </button>
+              </div>
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -527,7 +630,17 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Comments</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">Comments</label>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, comment: cleanText(formData.comment) })}
+                  className="text-xs px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
+                  title="Clean text formatting"
+                >
+                  🧹 Clean
+                </button>
+              </div>
               <textarea
                 value={formData.comment}
                 onChange={(e) => setFormData({ ...formData, comment: e.target.value })}

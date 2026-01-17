@@ -5,6 +5,7 @@ import { articlesApi } from '../services/api';
 import { useArticlesStore } from '../store/articles';
 import { useSettingsStore } from '../store/settings';
 import { checkTitle, starBar } from '../lib/utils';
+import { formatDate } from '../utils/text';
 
 export default function ArticlePage() {
   const { id } = useParams<{ id: string }>();
@@ -612,7 +613,7 @@ export default function ArticlePage() {
                 {mode === 'view' ? (
                   <>
                     {renderViewField('ID', article.id)}
-                    {renderViewField('Year', article.year)}
+                    {renderViewField('Date', formatDate(article.date))}
                     {renderViewField('Journal', article.journal)}
                     {renderViewField('Language', article.language)}
                     {renderViewField('Pages', article.numPages)}
@@ -796,14 +797,14 @@ export default function ArticlePage() {
           <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
             <h2 className="text-lg font-semibold mb-4">🏷️ Classification</h2>
             {mode === 'view' ? (
-              <div className="grid grid-cols-2 gap-6">
-                {renderViewField('Keywords', keywordsInput)}
-                {renderViewField('Tags', tagsInput)}
+              <div className="grid grid-cols-4 gap-6">
+                <div className="col-span-3">{renderViewField('Keywords', keywordsInput)}</div>
+                <div className="col-span-1">{renderViewField('Tags', tagsInput)}</div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-6">
-                {renderCommaInput('Keywords', keywordsInput, setKeywordsInput, 'machine learning, neural networks')}
-                {renderCommaInput('Tags', tagsInput, setTagsInput, 'important, read later')}
+              <div className="grid grid-cols-4 gap-6">
+                <div className="col-span-3">{renderCommaInput('Keywords', keywordsInput, setKeywordsInput, 'machine learning, neural networks')}</div>
+                <div className="col-span-1">{renderCommaInput('Tags', tagsInput, setTagsInput, 'important, read later')}</div>
               </div>
             )}
           </section>
@@ -878,8 +879,8 @@ export default function ArticlePage() {
 
           {/* ============= METADATA ============= */}
           <section className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm text-gray-600 dark:text-gray-400">
-            <p>Created: {article.dateAdded ? new Date(article.dateAdded).toLocaleDateString('en-US') : 'N/A'}</p>
-            <p>Last updated: {article.updatedAt ? new Date(article.updatedAt).toLocaleString('en-US') : 'N/A'}</p>
+            <p>Created: {formatDate(article.dateAdded)}</p>
+            <p>Last updated: {formatDate(article.updatedAt)}</p>
           </section>
         </div>
 
