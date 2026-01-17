@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { settingsApi, articlesApi } from '../services/api';
 import { useSettingsStore } from '../store/settings';
 import { useArticlesStore } from '../store/articles';
+import { useTranslation } from '../hooks/useTranslation';
 import { Article } from '../types/article';
 
 declare global {
@@ -20,8 +21,9 @@ const CSV_COLUMNS = [
 ];
 
 export default function Settings() {
-  const { theme, setTheme } = useSettingsStore();
+  const { theme, setTheme, setLanguage } = useSettingsStore();
   const { articles, setArticles, addArticle } = useArticlesStore();
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [settings, setSettings] = useState({
@@ -58,9 +60,11 @@ export default function Settings() {
         // Load language from database (theme is managed by Zustand store with localStorage persistence)
         const userSettings = await settingsApi.get();
         if (userSettings) {
+          const lang = userSettings.language || 'en';
           setSettings({
-            language: userSettings.language || 'en',
+            language: lang,
           });
+          setLanguage(lang); // Sync with Zustand store for immediate UI translations
         }
 
         // Load external storage settings
@@ -96,6 +100,7 @@ export default function Settings() {
   // Handle language change - auto-save
   const handleLanguageChange = async (newLanguage: string) => {
     setSettings({ ...settings, language: newLanguage });
+    setLanguage(newLanguage); // Update Zustand store for immediate UI update
     try {
       await settingsApi.update({
         ...settings,
@@ -464,7 +469,7 @@ export default function Settings() {
     return (
       <div className="p-8">
         <div className="text-center py-12">
-          <p className="text-lg">Loading settings...</p>
+          <p className="text-lg">{t('settings.loading')}</p>
         </div>
       </div>
     );
@@ -472,7 +477,7 @@ export default function Settings() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">⚙️ Settings</h1>
+      <h1 className="text-3xl font-bold mb-6">⚙️ {t('settings.title')}</h1>
 
       {message && (
         <div
@@ -487,23 +492,23 @@ export default function Settings() {
 
       {/* General Settings */}
       <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">General Settings</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('settings.general')}</h2>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Theme</label>
+            <label className="block text-sm font-medium mb-2">{t('settings.theme')}</label>
             <select
               value={theme}
               onChange={(e) => handleThemeChange(e.target.value as 'light' | 'dark')}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
+              <option value="light">{t('settings.theme.light')}</option>
+              <option value="dark">{t('settings.theme.dark')}</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Language</label>
+            <label className="block text-sm font-medium mb-2">{t('settings.language')}</label>
             <select
               value={settings.language}
               onChange={(e) => handleLanguageChange(e.target.value)}
@@ -511,9 +516,11 @@ export default function Settings() {
             >
               <option value="en">English</option>
               <option value="fr">Français</option>
+              <option value="es">Español</option>
+              <option value="zh">中文</option>
             </select>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Language switching will be available in a future update
+              {t('settings.language.note')}
             </p>
           </div>
         </div>
@@ -521,20 +528,20 @@ export default function Settings() {
 
       {/* External Storage (Copy) */}
       <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">📤 External Storage (Copy)</h2>
+        <h2 className="text-xl font-semibold mb-4">📤 {t('storage.title')}</h2>
 
         <div className="space-y-4">
           <div className="bg-purple-50 dark:bg-purple-900 border border-purple-200 dark:border-purple-700 rounded-lg p-4">
             <p className="text-sm text-purple-800 dark:text-purple-200">
-              <strong>How it works:</strong> When enabled, PDFs and Notes are automatically <strong>copied</strong> to an external folder (OneDrive, Google Drive, etc.) whenever you upload a PDF or generate a note. The app always uses its internal storage - the external folder is for easy access on your PC.
+              {t('storage.description')}
             </p>
           </div>
 
           {/* Toggle */}
           <div className="flex items-center justify-between">
             <div>
-              <label className="text-sm font-medium">Enable External Storage Copy</label>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Automatically copy PDFs and Notes to external folder</p>
+              <label className="text-sm font-medium">{t('storage.enable')}</label>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{t('storage.enable.desc')}</p>
             </div>
             <button
               onClick={() => handleToggleExternalStorage(!externalStorage.enabled)}
@@ -550,17 +557,26 @@ export default function Settings() {
 
           {/* External Path */}
           <div>
-            <label className="block text-sm font-medium mb-2">External Folder Path</label>
+            <label className="block text-sm font-medium mb-2">{t('storage.path')}</label>
             <div className="flex gap-2">
               <div className="flex-1 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm font-mono break-all">
-                {externalStorage.path || 'No folder selected'}
+                {externalStorage.path || t('storage.noFolder')}
               </div>
               <button
                 onClick={handleChooseExternalPath}
                 className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:opacity-80"
               >
-                Browse...
+                {t('storage.browse')}
               </button>
+              {externalStorage.path && (
+                <button
+                  onClick={() => setExternalStorage({ enabled: false, path: '' })}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:opacity-80"
+                  title={t('storage.clear')}
+                >
+                  {t('storage.clear')}
+                </button>
+              )}
             </div>
           </div>
 
@@ -569,21 +585,21 @@ export default function Settings() {
             onClick={handleSaveExternalSettings}
             className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:opacity-90"
           >
-            💾 Save External Settings
+            💾 {t('storage.save')}
           </button>
 
           {/* Copy Existing Files */}
           {externalStorage.path && (
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                Copy all existing PDFs and Notes to the external folder:
+                {t('storage.copyPrompt')}
               </p>
               <button
                 onClick={handleCopyExistingToExternal}
                 disabled={copyingToExternal}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:opacity-90 disabled:opacity-50"
               >
-                {copyingToExternal ? '⏳ Copying...' : '📋 Copy Existing Files to External'}
+                {copyingToExternal ? `⏳ ${t('storage.copying')}` : `📋 ${t('storage.copy')}`}
               </button>
             </div>
           )}
@@ -592,34 +608,34 @@ export default function Settings() {
 
       {/* Import/Export Data */}
       <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
-        <h2 className="text-xl font-semibold mb-4">📦 Import / Export Data</h2>
+        <h2 className="text-xl font-semibold mb-4">📦 {t('importExport.title')}</h2>
 
         <div className="space-y-4">
           <div className="bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
             <p className="text-sm text-blue-800 dark:text-blue-200">
-              <strong>Export:</strong> Download all your articles as CSV file.<br />
-              <strong>Import:</strong> Add articles from CSV. Duplicates (same title + authors) are skipped, IDs are auto-assigned.
+              <strong>Export:</strong> {t('importExport.description.export')}<br />
+              <strong>Import:</strong> {t('importExport.description.import')}
             </p>
           </div>
 
           {/* Export Section */}
           <div>
-            <label className="block text-sm font-medium mb-2">Export Data</label>
+            <label className="block text-sm font-medium mb-2">{t('importExport.export')}</label>
             <button
               onClick={handleExportCSV}
               disabled={exporting}
               className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:opacity-90 disabled:opacity-50"
             >
-              {exporting ? '⏳ Exporting...' : '📊 Export CSV'}
+              {exporting ? `⏳ ${t('importExport.exporting')}` : `📊 ${t('importExport.exportBtn')}`}
             </button>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Current library: {articles.length} article(s)
+              {t('common.currentLibrary')} {articles.length} {t('common.articles')}
             </p>
           </div>
 
           {/* Import Section */}
           <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <label className="block text-sm font-medium mb-2">Import Data</label>
+            <label className="block text-sm font-medium mb-2">{t('importExport.import')}</label>
             <input
               ref={fileInputRef}
               type="file"
@@ -637,23 +653,22 @@ export default function Settings() {
                 }`}
             >
               {importing ? (
-                <span className="text-gray-500 dark:text-gray-400">⏳ Importing...</span>
+                <span className="text-gray-500 dark:text-gray-400">⏳ {t('importExport.importing')}</span>
               ) : (
                 <span className="text-blue-600 dark:text-blue-400">
-                  📂 Click to select CSV file
+                  📂 {t('importExport.selectFile')}
                 </span>
               )}
             </label>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              <strong>CSV format:</strong> First row must contain column headers matching the database fields.
-              Use semicolon (;) to separate multiple values in authors, keywords, etc.
+              {t('importExport.csvFormat')}
             </p>
           </div>
 
           {/* Column Reference */}
           <details className="border-t border-gray-200 dark:border-gray-700 pt-4">
             <summary className="text-sm font-medium cursor-pointer text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
-              📋 View column names for CSV import
+              📋 {t('importExport.viewColumns')}
             </summary>
             <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-700 rounded-lg text-xs font-mono overflow-x-auto">
               {CSV_COLUMNS.join(', ')}
@@ -666,25 +681,25 @@ export default function Settings() {
       {importModal?.show && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4 text-blue-600 dark:text-blue-400">📊 CSV Analysis</h3>
+            <h3 className="text-xl font-bold mb-4 text-blue-600 dark:text-blue-400">📊 {t('importExport.analysis')}</h3>
 
             <div className="space-y-3 mb-6">
               <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
-                <span className="text-gray-600 dark:text-gray-400">Total articles found:</span>
+                <span className="text-gray-600 dark:text-gray-400">{t('importExport.total')}</span>
                 <span className="font-semibold">{importModal.total}</span>
               </div>
               <div className="flex justify-between items-center py-2">
-                <span className="text-green-600 dark:text-green-400">✅ To import:</span>
+                <span className="text-green-600 dark:text-green-400">✅ {t('importExport.toImport')}</span>
                 <span className="font-semibold text-green-600 dark:text-green-400">{importModal.toImport}</span>
               </div>
               <div className="flex justify-between items-center py-2">
-                <span className="text-red-600 dark:text-red-400">❌ Duplicates:</span>
+                <span className="text-red-600 dark:text-red-400">❌ {t('importExport.duplicates')}</span>
                 <span className="font-semibold text-red-600 dark:text-red-400">{importModal.duplicates}</span>
               </div>
             </div>
 
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 bg-gray-100 dark:bg-gray-700 p-3 rounded">
-              ℹ️ IDs will be automatically assigned (sequential).
+              ℹ️ {t('importExport.idsNote')}
             </p>
 
             <div className="flex gap-3 justify-end">
@@ -694,7 +709,7 @@ export default function Settings() {
                 disabled={importing}
                 className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:opacity-80 disabled:opacity-50"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 type="button"
@@ -702,7 +717,7 @@ export default function Settings() {
                 disabled={importing || importModal.toImport === 0}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:opacity-90 disabled:opacity-50"
               >
-                {importing ? '⏳ Importing...' : `Import ${importModal.toImport} article(s)`}
+                {importing ? `⏳ ${t('importExport.importing')}` : t('importExport.importBtn', { count: importModal.toImport })}
               </button>
             </div>
           </div>
