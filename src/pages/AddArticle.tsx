@@ -8,6 +8,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { checkTitle } from '../lib/utils';
 import { getPdfPageCount } from '../utils/pdf';
 import { cleanText } from '../utils/text';
+import { CleanTextarea } from '../components/form/CleanTextarea';
 
 export default function AddArticle() {
   const navigate = useNavigate();
@@ -266,9 +267,9 @@ export default function AddArticle() {
                   🧹 Clean
                 </button>
               </div>
-              <textarea
+              <CleanTextarea
                 value={formData.abstract}
-                onChange={(e) => setFormData({ ...formData, abstract: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, abstract: value })}
                 rows={5}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 required
@@ -407,9 +408,9 @@ export default function AddArticle() {
                   🧹 Clean
                 </button>
               </div>
-              <textarea
+              <CleanTextarea
                 value={formData.conclusion}
-                onChange={(e) => setFormData({ ...formData, conclusion: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, conclusion: value })}
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -469,9 +470,9 @@ export default function AddArticle() {
                   🧹 Clean
                 </button>
               </div>
-              <textarea
+              <CleanTextarea
                 value={formData.researchQuestion}
-                onChange={(e) => setFormData({ ...formData, researchQuestion: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, researchQuestion: value })}
                 rows={2}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -489,9 +490,9 @@ export default function AddArticle() {
                   🧹 Clean
                 </button>
               </div>
-              <textarea
+              <CleanTextarea
                 value={formData.methodology}
-                onChange={(e) => setFormData({ ...formData, methodology: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, methodology: value })}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -509,9 +510,9 @@ export default function AddArticle() {
                   🧹 Clean
                 </button>
               </div>
-              <textarea
+              <CleanTextarea
                 value={formData.dataUsed}
-                onChange={(e) => setFormData({ ...formData, dataUsed: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, dataUsed: value })}
                 rows={2}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -529,9 +530,9 @@ export default function AddArticle() {
                   🧹 Clean
                 </button>
               </div>
-              <textarea
+              <CleanTextarea
                 value={formData.results}
-                onChange={(e) => setFormData({ ...formData, results: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, results: value })}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -549,9 +550,9 @@ export default function AddArticle() {
                   🧹 Clean
                 </button>
               </div>
-              <textarea
+              <CleanTextarea
                 value={formData.limitations}
-                onChange={(e) => setFormData({ ...formData, limitations: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, limitations: value })}
                 rows={2}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -603,9 +604,9 @@ export default function AddArticle() {
                   🧹 Clean
                 </button>
               </div>
-              <textarea
+              <CleanTextarea
                 value={formData.firstImp}
-                onChange={(e) => setFormData({ ...formData, firstImp: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, firstImp: value })}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -623,9 +624,9 @@ export default function AddArticle() {
                   🧹 Clean
                 </button>
               </div>
-              <textarea
+              <CleanTextarea
                 value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, notes: value })}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -643,9 +644,9 @@ export default function AddArticle() {
                   🧹 Clean
                 </button>
               </div>
-              <textarea
+              <CleanTextarea
                 value={formData.comment}
-                onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, comment: value })}
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />

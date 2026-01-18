@@ -7,6 +7,7 @@ import { useSettingsStore } from '../store/settings';
 import { useTranslation } from '../hooks/useTranslation';
 import { checkTitle, starBar } from '../lib/utils';
 import { formatDate } from '../utils/text';
+import { CleanTextarea } from '../components/form/CleanTextarea';
 
 export default function ArticlePage() {
   const { id } = useParams<{ id: string }>();
@@ -442,9 +443,9 @@ export default function ArticlePage() {
           {label} {required && <span className="text-red-500">*</span>}
         </label>
         {type === 'textarea' ? (
-          <textarea
+          <CleanTextarea
             value={formData[field] as string}
-            onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+            onChange={(value) => setFormData({ ...formData, [field]: value })}
             rows={rows || 3}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             required={required}
