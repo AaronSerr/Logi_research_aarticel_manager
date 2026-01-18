@@ -4,6 +4,7 @@ import { ArticleFormData } from '../types/article';
 import { articlesApi } from '../services/api';
 import { useArticlesStore } from '../store/articles';
 import { useSettingsStore } from '../store/settings';
+import { useTranslation } from '../hooks/useTranslation';
 import { checkTitle } from '../lib/utils';
 import { getPdfPageCount } from '../utils/pdf';
 import { cleanText } from '../utils/text';
@@ -12,6 +13,7 @@ export default function AddArticle() {
   const navigate = useNavigate();
   const addArticle = useArticlesStore((state) => state.addArticle);
   const { sidebarCollapsed, theme } = useSettingsStore();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState<ArticleFormData>({
     title: '',

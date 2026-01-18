@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSettingsStore } from '../../store/settings';
+import { useTranslation } from '../../hooks/useTranslation';
 import { cn } from '../../lib/utils';
 
 export default function Sidebar() {
@@ -18,6 +19,8 @@ export default function Sidebar() {
     setLibraryFilterRead,
     setLibraryFilterFavorite,
   } = useSettingsStore();
+
+  const { t } = useTranslation();
 
   // Modal state for unsaved changes warning
   const [showUnsavedModal, setShowUnsavedModal] = useState(false);
@@ -60,9 +63,9 @@ export default function Sidebar() {
   };
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: '🏠' },
-    { path: '/library', label: 'Library', icon: '📚' },
-    { path: '/add', label: 'Add Article', icon: '➕' },
+    { path: '/', label: t('nav.dashboard'), icon: '🏠' },
+    { path: '/library', label: t('nav.library'), icon: '📚' },
+    { path: '/add', label: t('nav.addArticle'), icon: '➕' },
   ];
 
   // Quick filter handler - modifies Library filters directly and navigates
@@ -88,9 +91,9 @@ export default function Sidebar() {
   };
 
   const quickFilters = [
-    { filter: 'favorites' as const, label: 'Favorites', icon: '⭐', color: 'yellow' },
-    { filter: 'read' as const, label: 'Read', icon: '👁️', color: 'green' },
-    { filter: 'recent' as const, label: 'Recent', icon: '🕐', color: 'blue' },
+    { filter: 'favorites' as const, label: t('nav.favorites'), icon: '⭐', color: 'yellow' },
+    { filter: 'read' as const, label: t('nav.read'), icon: '👁️', color: 'green' },
+    { filter: 'recent' as const, label: t('nav.recent'), icon: '🕐', color: 'blue' },
   ];
 
   // Check if a quick filter is currently active (for visual feedback)
@@ -143,7 +146,7 @@ export default function Sidebar() {
           {!sidebarCollapsed && (
             <>
               <div className="mt-6 mb-2 px-3 text-sm font-semibold text-gray-500">
-                Quick Filters
+                {t('nav.quickFilters')}
               </div>
               <div className="space-y-1">
                 {quickFilters.map((item) => (
@@ -209,7 +212,7 @@ export default function Sidebar() {
             )}
           >
             <span className="text-xl">⚙️</span>
-            {!sidebarCollapsed && <span>Settings</span>}
+            {!sidebarCollapsed && <span>{t('nav.settings')}</span>}
           </Link>
         </div>
       </div>
@@ -218,28 +221,28 @@ export default function Sidebar() {
       {showUnsavedModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-md">
-            <h3 className="text-xl font-bold mb-4">Unsaved Changes</h3>
+            <h3 className="text-xl font-bold mb-4">{t('modal.unsavedChanges')}</h3>
             <p className="mb-6 text-gray-600 dark:text-gray-300">
-              You have unsaved changes. Would you like to save them?
+              {t('modal.unsavedMessage')}
             </p>
             <div className="flex flex-col gap-3">
               <button
                 onClick={confirmLeaveWithSaving}
                 className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
-                Save and Leave
+                {t('modal.saveAndLeave')}
               </button>
               <button
                 onClick={confirmLeaveWithoutSaving}
                 className="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
               >
-                Leave without Saving
+                {t('modal.leaveWithoutSaving')}
               </button>
               <button
                 onClick={cancelLeave}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </div>

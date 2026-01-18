@@ -1,8 +1,10 @@
 import React from 'react';
 import { useArticlesStore } from '../store/articles';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function Dashboard() {
   const articles = useArticlesStore((state) => state.articles);
+  const { t } = useTranslation();
 
   // Basic stats
   const totalArticles = articles.length;
@@ -40,31 +42,31 @@ export default function Dashboard() {
       {/* Header with logo */}
       <div className="flex items-center gap-3 mb-6">
         <span className="text-3xl">🏠</span>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-bold">{t('dashboard.title')}</h1>
       </div>
 
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
-          title="Total Articles"
+          title={t('dashboard.totalArticles')}
           value={totalArticles}
           icon="📚"
           color="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
         />
         <StatCard
-          title="Read Articles"
+          title={t('dashboard.readArticles')}
           value={readArticles}
           icon="👁️"
           color="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
         />
         <StatCard
-          title="Favorites"
+          title={t('dashboard.favorites')}
           value={favoriteArticles}
           icon="⭐"
           color="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
         />
         <StatCard
-          title="Average Rating"
+          title={t('dashboard.avgRating')}
           value={averageRating}
           icon="📊"
           color="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
@@ -73,35 +75,35 @@ export default function Dashboard() {
 
       {/* Database Statistics */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">📊 Database Statistics</h2>
+        <h2 className="text-xl font-semibold mb-4">📊 {t('dashboard.dbStats')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
           <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <p className="text-2xl font-bold text-primary">{uniqueAuthors}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">👤 Authors</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">👤 {t('dashboard.authors')}</p>
           </div>
           <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <p className="text-2xl font-bold text-primary">{uniqueUniversities}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">🎓 Universities</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">🎓 {t('dashboard.universities')}</p>
           </div>
           <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <p className="text-2xl font-bold text-primary">{uniqueCompanies}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">🏢 Companies</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">🏢 {t('dashboard.companies')}</p>
           </div>
           <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <p className="text-2xl font-bold text-primary">{uniqueKeywords}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">🔑 Keywords</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">🔑 {t('dashboard.keywords')}</p>
           </div>
           <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
             <p className="text-2xl font-bold text-primary">{uniqueSubjects}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">📋 Subjects</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">📋 {t('dashboard.subjects')}</p>
           </div>
           <div className="text-center p-3 bg-green-50 dark:bg-green-900 rounded-lg">
             <p className="text-2xl font-bold text-green-600 dark:text-green-300">{addedLastMonth}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">➕ Added (30d)</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">➕ {t('dashboard.added30d')}</p>
           </div>
           <div className="text-center p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
             <p className="text-2xl font-bold text-blue-600 dark:text-blue-300">{updatedLastMonth}</p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">✏️ Updated (30d)</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">✏️ {t('dashboard.updated30d')}</p>
           </div>
         </div>
       </div>
@@ -109,17 +111,17 @@ export default function Dashboard() {
       {/* Welcome Text */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold mb-4">
-          Welcome to Research Article Manager
+          {t('dashboard.welcome')}
         </h2>
         <p className="text-gray-600 dark:text-gray-300 mb-4">
-          This application helps you manage your research articles library. You can:
+          {t('dashboard.welcomeDesc')}
         </p>
         <ul className="list-disc list-inside space-y-2 text-gray-600 dark:text-gray-300">
-          <li>Add new articles with detailed metadata</li>
-          <li>Upload PDF files and generate Word notes</li>
-          <li>Search and filter your article collection</li>
-          <li>Edit article details and annotations</li>
-          <li>Organize articles with tags, keywords, and subjects</li>
+          <li>{t('dashboard.feature1')}</li>
+          <li>{t('dashboard.feature2')}</li>
+          <li>{t('dashboard.feature3')}</li>
+          <li>{t('dashboard.feature4')}</li>
+          <li>{t('dashboard.feature5')}</li>
         </ul>
       </div>
     </div>

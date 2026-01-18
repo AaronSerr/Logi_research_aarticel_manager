@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSettingsStore } from '../../store/settings';
+import { useTranslation } from '../../hooks/useTranslation';
 
 export default function TopBar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const {
     theme,
     toggleTheme,
@@ -85,7 +87,7 @@ export default function TopBar() {
             value={globalSearchText}
             onChange={(e) => setGlobalSearchText(e.target.value)}
             onKeyDown={handleSearchKeyDown}
-            placeholder="Search all fields..."
+            placeholder={t('library.searchPlaceholder')}
             className="w-full px-4 py-2 pl-10 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <svg
@@ -145,28 +147,28 @@ export default function TopBar() {
       {showUnsavedModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-md">
-            <h3 className="text-xl font-bold mb-4">Unsaved Changes</h3>
+            <h3 className="text-xl font-bold mb-4">{t('modal.unsavedChanges')}</h3>
             <p className="mb-6 text-gray-600 dark:text-gray-300">
-              You have unsaved changes. Would you like to save them?
+              {t('modal.unsavedMessage')}
             </p>
             <div className="flex flex-col gap-3">
               <button
                 onClick={confirmLeaveWithSaving}
                 className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
               >
-                Save and Leave
+                {t('modal.saveAndLeave')}
               </button>
               <button
                 onClick={confirmLeaveWithoutSaving}
                 className="w-full px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
               >
-                Leave without Saving
+                {t('modal.leaveWithoutSaving')}
               </button>
               <button
                 onClick={cancelLeave}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
             </div>
           </div>

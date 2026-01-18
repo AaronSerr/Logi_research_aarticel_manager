@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useArticlesStore } from '../store/articles';
 import { useSettingsStore } from '../store/settings';
+import { useTranslation } from '../hooks/useTranslation';
 import { articlesApi } from '../services/api';
 import { starBar } from '../lib/utils';
 import { formatDate, formatDateTime } from '../utils/text';
@@ -9,6 +10,7 @@ import { formatDate, formatDateTime } from '../utils/text';
 export default function Library() {
   const navigate = useNavigate();
   const { articles, setArticles } = useArticlesStore();
+  const { t } = useTranslation();
   const {
     globalSearchText,
     setGlobalSearchText,
@@ -117,26 +119,26 @@ export default function Library() {
 
   // Available search fields for local search selector
   const availableSearchFields = [
-    { value: 'all', label: 'All Fields' },
-    { value: 'title', label: 'Title' },
-    { value: 'abstract', label: 'Abstract' },
-    { value: 'conclusion', label: 'Conclusion' },
-    { value: 'authors', label: 'Authors' },
-    { value: 'keywords', label: 'Keywords' },
-    { value: 'tags', label: 'Tags' },
-    { value: 'subjects', label: 'Subjects' },
-    { value: 'journal', label: 'Journal' },
-    { value: 'doi', label: 'DOI' },
-    { value: 'researchQuestion', label: 'Research Question' },
-    { value: 'methodology', label: 'Methodology' },
-    { value: 'dataUsed', label: 'Data Used' },
-    { value: 'results', label: 'Results' },
-    { value: 'limitations', label: 'Limitations' },
-    { value: 'firstImp', label: 'First Impressions' },
-    { value: 'notes', label: 'Notes' },
-    { value: 'comment', label: 'Comments' },
-    { value: 'universities', label: 'Universities' },
-    { value: 'companies', label: 'Companies' },
+    { value: 'all', label: t('library.allFields') },
+    { value: 'title', label: t('field.title') },
+    { value: 'abstract', label: t('field.abstract') },
+    { value: 'conclusion', label: t('field.conclusion') },
+    { value: 'authors', label: t('field.authors') },
+    { value: 'keywords', label: t('field.keywords') },
+    { value: 'tags', label: t('field.tags') },
+    { value: 'subjects', label: t('field.subjects') },
+    { value: 'journal', label: t('field.journal') },
+    { value: 'doi', label: t('field.doi') },
+    { value: 'researchQuestion', label: t('field.researchQuestion') },
+    { value: 'methodology', label: t('field.methodology') },
+    { value: 'dataUsed', label: t('field.dataUsed') },
+    { value: 'results', label: t('field.results') },
+    { value: 'limitations', label: t('field.limitations') },
+    { value: 'firstImp', label: t('field.firstImp') },
+    { value: 'notes', label: t('field.notes') },
+    { value: 'comment', label: t('field.comment') },
+    { value: 'universities', label: t('field.universities') },
+    { value: 'companies', label: t('field.companies') },
   ];
 
   // Helper function to search all fields of an article (for global search)
@@ -449,7 +451,7 @@ export default function Library() {
 
   return (
     <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">📚 Library</h1>
+      <h1 className="text-3xl font-bold mb-6">📚 {t('library.title')}</h1>
 
       {/* Error Message */}
       {errorMessage && (
@@ -470,7 +472,7 @@ export default function Library() {
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Articles</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('library.totalArticles')}</p>
               <p className="text-2xl font-bold mt-1">{articles.length}</p>
             </div>
             <div className="text-4xl bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full w-16 h-16 flex items-center justify-center">
@@ -481,7 +483,7 @@ export default function Library() {
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Read</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('library.read')}</p>
               <p className="text-2xl font-bold mt-1">{articles.filter((a) => a.read).length}</p>
             </div>
             <div className="text-4xl bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full w-16 h-16 flex items-center justify-center">
@@ -492,7 +494,7 @@ export default function Library() {
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Favorites</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('library.favorites')}</p>
               <p className="text-2xl font-bold mt-1">{articles.filter((a) => a.favorite).length}</p>
             </div>
             <div className="text-4xl bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 rounded-full w-16 h-16 flex items-center justify-center">
@@ -503,7 +505,7 @@ export default function Library() {
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Filtered</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{t('library.filtered')}</p>
               <p className="text-2xl font-bold mt-1">{filteredArticles.length}</p>
             </div>
             <div className="text-4xl bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded-full w-16 h-16 flex items-center justify-center">
@@ -519,25 +521,25 @@ export default function Library() {
         <div className="grid grid-cols-3 gap-4">
           {/* Column 1: Search */}
           <div>
-            <label className="block text-sm font-medium mb-2">🔍 Search</label>
+            <label className="block text-sm font-medium mb-2">🔍 {t('library.search')}</label>
             <input
               type="text"
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search articles..."
+              placeholder={t('library.searchPlaceholder')}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           {/* Column 2: Search Fields Selector - Multi-select collapsible */}
           <div>
-            <label className="block text-sm font-medium mb-2">📋 Search In</label>
+            <label className="block text-sm font-medium mb-2">📋 {t('library.searchIn')}</label>
             <details ref={searchFieldsRef} className="relative">
               <summary className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg cursor-pointer flex justify-between items-center list-none">
                 <span>
                   {searchFields.includes('all')
-                    ? 'All Fields'
-                    : `${searchFields.length} field${searchFields.length > 1 ? 's' : ''} selected`}
+                    ? t('library.allFields')
+                    : t('library.fieldsSelected', { count: searchFields.length })}
                 </span>
                 <span className="text-gray-400">▼</span>
               </summary>
@@ -556,7 +558,7 @@ export default function Library() {
                     }}
                     className="mr-2 rounded"
                   />
-                  <span className="font-medium">All Fields</span>
+                  <span className="font-medium">{t('library.allFields')}</span>
                 </label>
                 {/* Individual fields */}
                 {availableSearchFields.filter(f => f.value !== 'all').map((field) => (
@@ -600,27 +602,27 @@ export default function Library() {
           {/* Column 3: Read Status & Favorites */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-sm font-medium mb-2">📖 Read</label>
+              <label className="block text-sm font-medium mb-2">📖 {t('library.readStatus')}</label>
               <select
                 value={libraryFilterRead}
                 onChange={(e) => setLibraryFilterRead(e.target.value as any)}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
               >
-                <option value="all">All</option>
-                <option value="read">Read</option>
-                <option value="unread">Unread</option>
+                <option value="all">{t('library.all')}</option>
+                <option value="read">{t('library.read')}</option>
+                <option value="unread">{t('library.unread')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">⭐ Favorite</label>
+              <label className="block text-sm font-medium mb-2">⭐ {t('library.favorite')}</label>
               <select
                 value={libraryFilterFavorite}
                 onChange={(e) => setLibraryFilterFavorite(e.target.value as any)}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm"
               >
-                <option value="all">All</option>
-                <option value="favorites">Yes</option>
-                <option value="non-favorites">No</option>
+                <option value="all">{t('library.all')}</option>
+                <option value="favorites">{t('common.yes')}</option>
+                <option value="non-favorites">{t('common.no')}</option>
               </select>
             </div>
           </div>
@@ -631,7 +633,7 @@ export default function Library() {
           onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
           className="mt-4 w-full px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg text-sm font-medium flex items-center justify-center gap-2"
         >
-          <span>🎛️ Advanced Filters</span>
+          <span>🎛️ {t('library.advancedFilters')}</span>
           <span>{showAdvancedFilters ? '▲' : '▼'}</span>
         </button>
 
@@ -643,7 +645,7 @@ export default function Library() {
               {/* Publication Year Range */}
               <div>
               <label className="block text-sm font-medium mb-1.5">
-                📅 Publication Year
+                📅 {t('library.pubYear')}
               </label>
               <div className="px-2">
                 <div className="flex justify-between mb-0.5">
@@ -697,7 +699,7 @@ export default function Library() {
             {/* Date Added Range */}
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                📆 Date Added
+                📆 {t('library.dateAdded')}
               </label>
               <div className="px-2">
                 <div className="flex justify-between mb-0.5">
@@ -782,7 +784,7 @@ export default function Library() {
             {/* Rating Range */}
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                ⭐ Rating
+                ⭐ {t('library.rating')}
               </label>
               <div className="px-2">
                 <div className="flex justify-between mb-0.5">
@@ -838,7 +840,7 @@ export default function Library() {
             {/* Number of Pages Range */}
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                📄 Number of Pages
+                📄 {t('library.numPages')}
               </label>
               <div className="px-2">
                 <div className="flex justify-between mb-0.5">
@@ -893,10 +895,10 @@ export default function Library() {
             {/* Row 3: Author, Keyword, Tag - Multi-Select */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">👤 Authors ({filterAuthors.length})</label>
+                <label className="block text-sm font-medium mb-2">👤 {t('field.authors')} ({filterAuthors.length})</label>
                 <details ref={authorsRef} className="relative">
                   <summary className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors list-none flex justify-between items-center">
-                    <span className="text-sm">{filterAuthors.length > 0 ? `${filterAuthors.length} selected` : 'All Authors'}</span>
+                    <span className="text-sm">{filterAuthors.length > 0 ? t('library.selected', { count: filterAuthors.length }) : t('library.allAuthors')}</span>
                     <span className="text-xs">▼</span>
                   </summary>
                   <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
@@ -917,10 +919,10 @@ export default function Library() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">🔑 Keywords ({filterKeywords.length})</label>
+                <label className="block text-sm font-medium mb-2">🔑 {t('field.keywords')} ({filterKeywords.length})</label>
                 <details ref={keywordsRef} className="relative">
                   <summary className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors list-none flex justify-between items-center">
-                    <span className="text-sm">{filterKeywords.length > 0 ? `${filterKeywords.length} selected` : 'All Keywords'}</span>
+                    <span className="text-sm">{filterKeywords.length > 0 ? t('library.selected', { count: filterKeywords.length }) : t('library.allKeywords')}</span>
                     <span className="text-xs">▼</span>
                   </summary>
                   <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
@@ -941,10 +943,10 @@ export default function Library() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">🏷️ Tags ({filterTags.length})</label>
+                <label className="block text-sm font-medium mb-2">🏷️ {t('field.tags')} ({filterTags.length})</label>
                 <details ref={tagsRef} className="relative">
                   <summary className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors list-none flex justify-between items-center">
-                    <span className="text-sm">{filterTags.length > 0 ? `${filterTags.length} selected` : 'All Tags'}</span>
+                    <span className="text-sm">{filterTags.length > 0 ? t('library.selected', { count: filterTags.length }) : t('library.allTags')}</span>
                     <span className="text-xs">▼</span>
                   </summary>
                   <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
@@ -968,10 +970,10 @@ export default function Library() {
             {/* Row 4: Universities, Companies, Journals - Multi-Select */}
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-2">🎓 Universities ({filterUniversities.length})</label>
+                <label className="block text-sm font-medium mb-2">🎓 {t('field.universities')} ({filterUniversities.length})</label>
                 <details ref={universitiesRef} className="relative">
                   <summary className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors list-none flex justify-between items-center">
-                    <span className="text-sm">{filterUniversities.length > 0 ? `${filterUniversities.length} selected` : 'All Universities'}</span>
+                    <span className="text-sm">{filterUniversities.length > 0 ? t('library.selected', { count: filterUniversities.length }) : t('library.allUniversities')}</span>
                     <span className="text-xs">▼</span>
                   </summary>
                   <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
@@ -992,10 +994,10 @@ export default function Library() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">🏢 Companies ({filterCompanies.length})</label>
+                <label className="block text-sm font-medium mb-2">🏢 {t('field.companies')} ({filterCompanies.length})</label>
                 <details ref={companiesRef} className="relative">
                   <summary className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors list-none flex justify-between items-center">
-                    <span className="text-sm">{filterCompanies.length > 0 ? `${filterCompanies.length} selected` : 'All Companies'}</span>
+                    <span className="text-sm">{filterCompanies.length > 0 ? t('library.selected', { count: filterCompanies.length }) : t('library.allCompanies')}</span>
                     <span className="text-xs">▼</span>
                   </summary>
                   <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
@@ -1016,10 +1018,10 @@ export default function Library() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">📰 Journals ({filterJournals.length})</label>
+                <label className="block text-sm font-medium mb-2">📰 {t('field.journal')} ({filterJournals.length})</label>
                 <details ref={journalsRef} className="relative">
                   <summary className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors list-none flex justify-between items-center">
-                    <span className="text-sm">{filterJournals.length > 0 ? `${filterJournals.length} selected` : 'All Journals'}</span>
+                    <span className="text-sm">{filterJournals.length > 0 ? t('library.selected', { count: filterJournals.length }) : t('library.allJournals')}</span>
                     <span className="text-xs">▼</span>
                   </summary>
                   <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-48 overflow-y-auto">
@@ -1061,7 +1063,7 @@ export default function Library() {
               }}
               className="w-full px-4 py-2 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-lg hover:bg-red-200 dark:hover:bg-red-800 text-sm font-medium"
             >
-              Clear All Advanced Filters
+              {t('library.clearAdvanced')}
             </button>
           </div>
         )}
@@ -1082,22 +1084,22 @@ export default function Library() {
                 className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
                 onClick={() => handleSort('title')}
               >
-                Title {sortColumn === 'title' && (sortDirection === 'asc' ? '↑' : '↓')}
+                {t('field.title')} {sortColumn === 'title' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Authors</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('field.authors')}</th>
               <th
                 className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
                 onClick={() => handleSort('year')}
               >
-                Year {sortColumn === 'year' && (sortDirection === 'asc' ? '↑' : '↓')}
+                {t('field.year')} {sortColumn === 'year' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Journal</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('field.journal')}</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">{t('library.status')}</th>
               <th
                 className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
                 onClick={() => handleSort('createdAt')}
               >
-                Date Added {sortColumn === 'createdAt' && (sortDirection === 'asc' ? '↑' : '↓')}
+                {t('library.dateAdded')} {sortColumn === 'createdAt' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th
                 className={`px-4 py-3 text-left text-xs font-medium uppercase cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 ${
@@ -1107,7 +1109,7 @@ export default function Library() {
                 }`}
                 onClick={() => handleSort('updatedAt')}
               >
-                Last Update {sortColumn === 'updatedAt' && (sortDirection === 'asc' ? '↑' : '↓')}
+                {t('library.lastUpdate')} {sortColumn === 'updatedAt' && (sortDirection === 'asc' ? '↑' : '↓')}
                 {activeQuickFilter === 'recent' && ' 🕐'}
               </th>
             </tr>
@@ -1116,7 +1118,7 @@ export default function Library() {
             {filteredArticles.length === 0 ? (
               <tr>
                 <td colSpan={8} className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                  No articles found. Add your first article!
+                  {t('library.noArticles')}
                 </td>
               </tr>
             ) : (
@@ -1137,7 +1139,7 @@ export default function Library() {
                   <td className="px-4 py-3 text-sm">{article.year}</td>
                   <td className="px-4 py-3 text-sm">{article.journal || '-'}</td>
                   <td className="px-4 py-3 text-sm">
-                    {article.read ? '👁️ Read' : '📌 Unread'}
+                    {article.read ? `👁️ ${t('library.read')}` : `📌 ${t('library.unread')}`}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {formatDate(article.dateAdded)}

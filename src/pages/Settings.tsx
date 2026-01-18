@@ -518,6 +518,10 @@ export default function Settings() {
               <option value="fr">Français</option>
               <option value="es">Español</option>
               <option value="zh">中文</option>
+              <option value="ar">العربية</option>
+              <option value="ru">Русский</option>
+              <option value="he">עברית</option>
+              <option value="it">Italiano</option>
             </select>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {t('settings.language.note')}

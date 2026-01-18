@@ -4,6 +4,7 @@ import { Article, ArticleFormData } from '../types/article';
 import { articlesApi } from '../services/api';
 import { useArticlesStore } from '../store/articles';
 import { useSettingsStore } from '../store/settings';
+import { useTranslation } from '../hooks/useTranslation';
 import { checkTitle, starBar } from '../lib/utils';
 import { formatDate } from '../utils/text';
 
@@ -12,6 +13,7 @@ export default function ArticlePage() {
   const navigate = useNavigate();
   const updateArticle = useArticlesStore((state) => state.updateArticle);
   const { sidebarCollapsed, setUnsavedChanges, clearUnsavedChanges, theme } = useSettingsStore();
+  const { t } = useTranslation();
 
   // Mode: 'view' or 'edit'
   const [mode, setMode] = useState<'view' | 'edit'>('view');
