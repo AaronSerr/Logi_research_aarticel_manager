@@ -422,7 +422,7 @@ export default function ArticlePage() {
           {label}
         </label>
         <p className="text-gray-900 dark:text-white">
-          {displayValue || <span className="text-gray-400 italic text-sm">Not specified</span>}
+          {displayValue || <span className="text-gray-400 italic text-sm">{t('common.notSpecified')}</span>}
         </p>
       </div>
     );
@@ -617,10 +617,10 @@ export default function ArticlePage() {
                 {mode === 'view' ? (
                   <>
                     {renderViewField('ID', article.id)}
-                    {renderViewField('Date', formatDate(article.date))}
-                    {renderViewField('Journal', article.journal)}
-                    {renderViewField('Language', article.language)}
-                    {renderViewField('Pages', article.numPages)}
+                    {renderViewField(t('field.date'), formatDate(article.date))}
+                    {renderViewField(t('field.journal'), article.journal)}
+                    {renderViewField(t('field.language'), article.language)}
+                    {renderViewField(t('field.numPages'), article.numPages)}
                   </>
                 ) : (
                   <>
@@ -628,14 +628,14 @@ export default function ArticlePage() {
                       <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">ID</label>
                       <p className="text-gray-900 dark:text-white font-mono">{article.id}</p>
                     </div>
-                    {renderEditField('Publication Date', 'date', 'date', undefined, undefined, true)}
-                    {renderEditField('Journal', 'journal')}
-                    {renderEditField('Language', 'language', 'select', [
+                    {renderEditField(t('field.date'), 'date', 'date', undefined, undefined, true)}
+                    {renderEditField(t('field.journal'), 'journal')}
+                    {renderEditField(t('field.language'), 'language', 'select', [
                       { value: 'English', label: 'English' },
-                      { value: 'French', label: 'French' },
-                      { value: 'Other', label: 'Other' },
+                      { value: 'French', label: 'Français' },
+                      { value: 'Other', label: t('common.other') },
                     ])}
-                    {renderEditField('Number of Pages', 'numPages', 'number')}
+                    {renderEditField(t('field.numPages'), 'numPages', 'number')}
                   </>
                 )}
               </div>
@@ -644,18 +644,18 @@ export default function ArticlePage() {
               <div className="col-span-2 space-y-2">
                 {mode === 'view' ? (
                   <>
-                    {renderViewField('Authors', authorsInput)}
-                    {renderViewField('Universities', universitiesInput)}
-                    {renderViewField('Companies', companiesInput)}
+                    {renderViewField(t('field.authors'), authorsInput)}
+                    {renderViewField(t('field.universities'), universitiesInput)}
+                    {renderViewField(t('field.companies'), companiesInput)}
                     <div className="mb-3">
                       <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">
-                        Rating
+                        {t('field.rating')}
                       </label>
                       <p className="text-xl">{starBar(article.rating)} ({article.rating}/5)</p>
                     </div>
                     <div className="mb-3">
                       <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-0.5">
-                        DOI
+                        {t('field.doi')}
                       </label>
                       {article.doi ? (
                         <div className="flex flex-wrap items-center gap-2">
@@ -699,11 +699,11 @@ export default function ArticlePage() {
                   </>
                 ) : (
                   <>
-                    {renderCommaInput('Authors', authorsInput, setAuthorsInput, 'John Doe, Jane Smith', true)}
-                    {renderCommaInput('Universities', universitiesInput, setUniversitiesInput, 'MIT, Stanford')}
-                    {renderCommaInput('Companies', companiesInput, setCompaniesInput, 'Google, Microsoft')}
+                    {renderCommaInput(t('field.authors'), authorsInput, setAuthorsInput, 'John Doe, Jane Smith', true)}
+                    {renderCommaInput(t('field.universities'), universitiesInput, setUniversitiesInput, 'MIT, Stanford')}
+                    {renderCommaInput(t('field.companies'), companiesInput, setCompaniesInput, 'Google, Microsoft')}
                     <div className="mb-3">
-                      <label className="block text-sm font-medium mb-1">Rating</label>
+                      <label className="block text-sm font-medium mb-1">{t('field.rating')}</label>
                       <div className="flex items-center gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <button
@@ -726,7 +726,7 @@ export default function ArticlePage() {
                         )}
                       </div>
                     </div>
-                    {renderEditField('DOI', 'doi')}
+                    {renderEditField(t('field.doi'), 'doi')}
                   </>
                 )}
               </div>
@@ -741,19 +741,19 @@ export default function ArticlePage() {
                 onClick={openPdf}
                 className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90"
               >
-                Open PDF
+                {t('article.openPdf')}
               </button>
               <button
                 onClick={() => setShowPdfPreview(!showPdfPreview)}
                 className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
               >
-                {showPdfPreview ? 'Hide Preview' : 'Show Preview'}
+                {showPdfPreview ? t('article.hidePreview') : t('article.showPreview')}
               </button>
               <button
                 onClick={openNote}
                 className="px-4 py-2 bg-green-600 text-white rounded-lg hover:opacity-90"
               >
-                Open Note
+                {t('article.openNote')}
               </button>
 
               {/* PDF Drop zone - inline à droite des boutons en mode edit */}
@@ -776,7 +776,7 @@ export default function ArticlePage() {
                     </div>
                   ) : (
                     <div className="flex items-center justify-center gap-2">
-                      <span className="text-gray-500 text-sm">Drop PDF to replace</span>
+                      <span className="text-gray-500 text-sm">{t('article.dropPdf')}</span>
                       <input
                         type="file"
                         accept="application/pdf"
@@ -788,7 +788,7 @@ export default function ArticlePage() {
                         htmlFor="pdf-upload-inline"
                         className="px-2 py-1 text-xs bg-gray-200 dark:bg-gray-600 rounded cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-500"
                       >
-                        Browse
+                        {t('common.browse')}
                       </label>
                     </div>
                   )}
@@ -799,63 +799,63 @@ export default function ArticlePage() {
 
           {/* ============= CLASSIFICATION: Keywords & Tags ============= */}
           <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
-            <h2 className="text-lg font-semibold mb-4">🏷️ Classification</h2>
+            <h2 className="text-lg font-semibold mb-4">🏷️ {t('article.classification')}</h2>
             {mode === 'view' ? (
               <div className="grid grid-cols-4 gap-6">
-                <div className="col-span-3">{renderViewField('Keywords', keywordsInput)}</div>
-                <div className="col-span-1">{renderViewField('Tags', tagsInput)}</div>
+                <div className="col-span-3">{renderViewField(t('field.keywords'), keywordsInput)}</div>
+                <div className="col-span-1">{renderViewField(t('field.tags'), tagsInput)}</div>
               </div>
             ) : (
               <div className="grid grid-cols-4 gap-6">
-                <div className="col-span-3">{renderCommaInput('Keywords', keywordsInput, setKeywordsInput, 'machine learning, neural networks')}</div>
-                <div className="col-span-1">{renderCommaInput('Tags', tagsInput, setTagsInput, 'important, read later')}</div>
+                <div className="col-span-3">{renderCommaInput(t('field.keywords'), keywordsInput, setKeywordsInput, 'machine learning, neural networks')}</div>
+                <div className="col-span-1">{renderCommaInput(t('field.tags'), tagsInput, setTagsInput, 'important, read later')}</div>
               </div>
             )}
           </section>
 
           {/* ============= ABSTRACT & CONCLUSION ============= */}
           <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
-            <h2 className="text-lg font-semibold mb-4">📝 Abstract & Conclusion</h2>
+            <h2 className="text-lg font-semibold mb-4">📝 {t('field.abstract')} & {t('field.conclusion')}</h2>
             {mode === 'view' ? (
               <>
                 <div className="mb-4">
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Abstract</label>
-                  <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{article.abstract || <span className="text-gray-400 italic">Not specified</span>}</p>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{t('field.abstract')}</label>
+                  <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{article.abstract || <span className="text-gray-400 italic">{t('common.notSpecified')}</span>}</p>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Conclusion</label>
-                  <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{article.conclusion || <span className="text-gray-400 italic">Not specified</span>}</p>
+                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">{t('field.conclusion')}</label>
+                  <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{article.conclusion || <span className="text-gray-400 italic">{t('common.notSpecified')}</span>}</p>
                 </div>
               </>
             ) : (
               <>
-                {renderEditField('Abstract', 'abstract', 'textarea', undefined, 5, true)}
-                {renderEditField('Conclusion', 'conclusion', 'textarea', undefined, 4)}
+                {renderEditField(t('field.abstract'), 'abstract', 'textarea', undefined, 5, true)}
+                {renderEditField(t('field.conclusion'), 'conclusion', 'textarea', undefined, 4)}
               </>
             )}
           </section>
 
           {/* ============= RESEARCH CONTENT ============= */}
           <details className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
-            <summary className="text-lg font-semibold cursor-pointer">🔬 Research Content</summary>
+            <summary className="text-lg font-semibold cursor-pointer">🔬 {t('article.researchContent')}</summary>
             <div className="mt-4">
               {mode === 'view' ? (
                 <>
-                  {renderViewField('Topics Covered', subjectsInput)}
-                  {renderViewField('Research Question', article.researchQuestion)}
-                  {renderViewField('Methodology', article.methodology)}
-                  {renderViewField('Data Used', article.dataUsed)}
-                  {renderViewField('Results', article.results)}
-                  {renderViewField('Limitations', article.limitations)}
+                  {renderViewField(t('field.subjects'), subjectsInput)}
+                  {renderViewField(t('field.researchQuestion'), article.researchQuestion)}
+                  {renderViewField(t('field.methodology'), article.methodology)}
+                  {renderViewField(t('field.dataUsed'), article.dataUsed)}
+                  {renderViewField(t('field.results'), article.results)}
+                  {renderViewField(t('field.limitations'), article.limitations)}
                 </>
               ) : (
                 <>
-                  {renderCommaInput('Topics Covered', subjectsInput, setSubjectsInput, 'Deep Learning, Computer Vision')}
-                  {renderEditField('Research Question', 'researchQuestion', 'textarea', undefined, 2)}
-                  {renderEditField('Methodology', 'methodology', 'textarea', undefined, 3)}
-                  {renderEditField('Data Used', 'dataUsed', 'textarea', undefined, 2)}
-                  {renderEditField('Results', 'results', 'textarea', undefined, 3)}
-                  {renderEditField('Limitations', 'limitations', 'textarea', undefined, 2)}
+                  {renderCommaInput(t('field.subjects'), subjectsInput, setSubjectsInput, 'Deep Learning, Computer Vision')}
+                  {renderEditField(t('field.researchQuestion'), 'researchQuestion', 'textarea', undefined, 2)}
+                  {renderEditField(t('field.methodology'), 'methodology', 'textarea', undefined, 3)}
+                  {renderEditField(t('field.dataUsed'), 'dataUsed', 'textarea', undefined, 2)}
+                  {renderEditField(t('field.results'), 'results', 'textarea', undefined, 3)}
+                  {renderEditField(t('field.limitations'), 'limitations', 'textarea', undefined, 2)}
                 </>
               )}
             </div>
@@ -863,19 +863,19 @@ export default function ArticlePage() {
 
           {/* ============= NOTES & COMMENTS ============= */}
           <details className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6" open>
-            <summary className="text-lg font-semibold cursor-pointer">📌 Notes & Comments</summary>
+            <summary className="text-lg font-semibold cursor-pointer">📌 {t('field.notes')} & {t('field.comment')}</summary>
             <div className="mt-4">
               {mode === 'view' ? (
                 <>
-                  {renderViewField('First Impressions', article.firstImp)}
-                  {renderViewField('Personal Notes', article.notes)}
-                  {renderViewField('Comments', article.comment)}
+                  {renderViewField(t('field.firstImp'), article.firstImp)}
+                  {renderViewField(t('field.notes'), article.notes)}
+                  {renderViewField(t('field.comment'), article.comment)}
                 </>
               ) : (
                 <>
-                  {renderEditField('First Impressions', 'firstImp', 'textarea', undefined, 3)}
-                  {renderEditField('Personal Notes', 'notes', 'textarea', undefined, 3)}
-                  {renderEditField('Comments', 'comment', 'textarea', undefined, 3)}
+                  {renderEditField(t('field.firstImp'), 'firstImp', 'textarea', undefined, 3)}
+                  {renderEditField(t('field.notes'), 'notes', 'textarea', undefined, 3)}
+                  {renderEditField(t('field.comment'), 'comment', 'textarea', undefined, 3)}
                 </>
               )}
             </div>
@@ -883,8 +883,8 @@ export default function ArticlePage() {
 
           {/* ============= METADATA ============= */}
           <section className="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg text-sm text-gray-600 dark:text-gray-400">
-            <p>Created: {formatDate(article.dateAdded)}</p>
-            <p>Last updated: {formatDate(article.updatedAt)}</p>
+            <p>{t('field.createdAt')}: {formatDate(article.dateAdded)}</p>
+            <p>{t('field.updatedAt')}: {formatDate(article.updatedAt)}</p>
           </section>
         </div>
 
@@ -907,7 +907,7 @@ export default function ArticlePage() {
         {success && (
           <div className="absolute bottom-20 left-0 right-0 flex justify-center pointer-events-none z-50">
             <div className="bg-green-500 text-white px-5 py-2.5 rounded-lg shadow-lg font-medium pointer-events-auto">
-              Article updated successfully!
+              {t('article.updateSuccess')}
             </div>
           </div>
         )}
@@ -923,13 +923,13 @@ export default function ArticlePage() {
                   onClick={() => navigate('/library')}
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
-                  ← Back to Library
+                  ← {t('article.backToLibrary')}
                 </button>
                 <button
                   onClick={enterEditMode}
                   className="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-yellow-600"
                 >
-                  Edit Article
+                  {t('article.edit')}
                 </button>
               </>
             ) : (
@@ -938,14 +938,14 @@ export default function ArticlePage() {
                   onClick={safeCancelEdit}
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
-                  Cancel
+                  {t('article.cancel')}
                 </button>
                 <button
                   onClick={saveChanges}
                   disabled={loading}
                   className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
                 >
-                  {loading ? 'Saving...' : 'Save Changes'}
+                  {loading ? t('article.saving') : t('article.saveChanges')}
                 </button>
               </>
             )}
@@ -961,7 +961,7 @@ export default function ArticlePage() {
           style={{ width: `${pdfPanelWidth}%` }}
         >
           <div className="h-10 px-4 bg-gray-200 dark:bg-gray-800 flex justify-between items-center border-b border-gray-300 dark:border-gray-700 shrink-0">
-            <h3 className="text-gray-900 dark:text-white font-medium">PDF Preview</h3>
+            <h3 className="text-gray-900 dark:text-white font-medium">{t('article.pdfPreview')}</h3>
             <button
               onClick={() => setShowPdfPreview(false)}
               className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xl"
@@ -973,7 +973,7 @@ export default function ArticlePage() {
           <div className="flex-1 overflow-hidden">
             {loadingPdf ? (
               <div className="flex items-center justify-center h-full">
-                <p className="text-gray-600 dark:text-gray-400">Loading PDF...</p>
+                <p className="text-gray-600 dark:text-gray-400">{t('article.loadingPdf')}</p>
               </div>
             ) : pdfBase64 ? (
               <object
@@ -982,14 +982,13 @@ export default function ArticlePage() {
                 className="w-full h-full"
               >
                 <p className="text-gray-600 dark:text-gray-400 text-center p-4">
-                  Unable to display PDF. <button onClick={openPdf} className="text-blue-500 underline">Open in external viewer</button>
+                  {t('article.unableToDisplayPdf')} <button onClick={openPdf} className="text-blue-500 underline">{t('article.openInExternalViewer')}</button>
                 </p>
               </object>
             ) : (
               <div className="flex items-center justify-center h-full">
                 <p className="text-gray-600 dark:text-gray-400 text-center">
-                  No PDF available for this article.<br/>
-                  Upload a PDF to enable preview.
+                  {t('article.noPdfAvailable')}
                 </p>
               </div>
             )}

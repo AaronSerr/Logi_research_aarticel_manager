@@ -1,7 +1,7 @@
 {
   "name": "research-article-manager",
   "productName": "Research Article Manager",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "A desktop application to manage and organize research articles, PDFs, and notes",
   "repository": {
     "type": "git",
