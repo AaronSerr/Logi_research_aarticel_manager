@@ -125,9 +125,9 @@ export default function AddArticle() {
       // Create article
       const newArticle = await articlesApi.create(submissionData);
 
-      // Upload PDF if provided
+      // Upload PDF if provided (uses new naming format: "PAPER001 - Title.pdf")
       if (pdfFile) {
-        await articlesApi.uploadPdf(newArticle.id, pdfFile);
+        await articlesApi.uploadPdf(newArticle.id, newArticle.title, pdfFile);
       }
 
       // Generate Word note

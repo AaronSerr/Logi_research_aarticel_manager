@@ -378,25 +378,59 @@ ipcMain.handle('articles:update', async (_event, id: string, formData: Partial<A
 });
 
 // Delete article
+// Helper to generate file name from ID and title (same logic as files.ts)
+function makeName(id: string, title: string): string {
+  const cleanTitle = title
+    .replace(/[<>:"/\\|?*]/g, '-')
+    .replace(/_/g, ' ')
+    .trim();
+  const baseName = `${id} - ${cleanTitle}`;
+  const maxLength = 200;
+  if (baseName.length > maxLength) {
+    return baseName.substring(0, maxLength).trim();
+  }
+  return baseName;
+}
+
 ipcMain.handle('articles:delete', async (_event, id: string) => {
   try {
     const db = getDb();
 
+    // Get article title for file name lookup
+    const article = db.prepare(`SELECT title FROM Article WHERE id = ?`).get(id) as { title: string } | undefined;
+    const title = article?.title || '';
+
     // Use centralized StoragePaths for storage location
     const storagePath = StoragePaths.root;
 
-    // Delete PDF file if exists (named by article ID)
-    const pdfPath = path.join(storagePath, 'pdfs', `${id}.pdf`);
-    if (fs.existsSync(pdfPath)) {
-      fs.unlinkSync(pdfPath);
-      console.log(`Deleted PDF: ${pdfPath}`);
+    // Try to delete PDF with new format first, then old format
+    const newPdfName = makeName(id, title) + '.pdf';
+    const oldPdfName = `${id}.pdf`;
+
+    const newPdfPath = path.join(storagePath, 'pdfs', newPdfName);
+    const oldPdfPath = path.join(storagePath, 'pdfs', oldPdfName);
+
+    if (fs.existsSync(newPdfPath)) {
+      fs.unlinkSync(newPdfPath);
+      console.log(`Deleted PDF: ${newPdfPath}`);
+    } else if (fs.existsSync(oldPdfPath)) {
+      fs.unlinkSync(oldPdfPath);
+      console.log(`Deleted PDF (old format): ${oldPdfPath}`);
     }
 
-    // Delete Note file if exists (Word docx, named by article ID)
-    const notePath = path.join(storagePath, 'notes', `${id}.docx`);
-    if (fs.existsSync(notePath)) {
-      fs.unlinkSync(notePath);
-      console.log(`Deleted Note: ${notePath}`);
+    // Try to delete Note with new format first, then old format
+    const newNoteName = makeName(id, title) + '.docx';
+    const oldNoteName = `${id}.docx`;
+
+    const newNotePath = path.join(storagePath, 'notes', newNoteName);
+    const oldNotePath = path.join(storagePath, 'notes', oldNoteName);
+
+    if (fs.existsSync(newNotePath)) {
+      fs.unlinkSync(newNotePath);
+      console.log(`Deleted Note: ${newNotePath}`);
+    } else if (fs.existsSync(oldNotePath)) {
+      fs.unlinkSync(oldNotePath);
+      console.log(`Deleted Note (old format): ${oldNotePath}`);
     }
 
     // Also delete from external storage if configured
@@ -406,16 +440,27 @@ ipcMain.handle('articles:delete', async (_event, id: string) => {
     } | undefined;
 
     if (settings?.useExternalStorage && settings?.externalStoragePath) {
-      const extPdfPath = path.join(settings.externalStoragePath, 'pdfs', `${id}.pdf`);
-      if (fs.existsSync(extPdfPath)) {
-        fs.unlinkSync(extPdfPath);
-        console.log(`Deleted external PDF: ${extPdfPath}`);
+      // Try new format first
+      const extNewPdfPath = path.join(settings.externalStoragePath, 'pdfs', newPdfName);
+      const extOldPdfPath = path.join(settings.externalStoragePath, 'pdfs', oldPdfName);
+
+      if (fs.existsSync(extNewPdfPath)) {
+        fs.unlinkSync(extNewPdfPath);
+        console.log(`Deleted external PDF: ${extNewPdfPath}`);
+      } else if (fs.existsSync(extOldPdfPath)) {
+        fs.unlinkSync(extOldPdfPath);
+        console.log(`Deleted external PDF (old format): ${extOldPdfPath}`);
       }
 
-      const extNotePath = path.join(settings.externalStoragePath, 'notes', `${id}.docx`);
-      if (fs.existsSync(extNotePath)) {
-        fs.unlinkSync(extNotePath);
-        console.log(`Deleted external Note: ${extNotePath}`);
+      const extNewNotePath = path.join(settings.externalStoragePath, 'notes', newNoteName);
+      const extOldNotePath = path.join(settings.externalStoragePath, 'notes', oldNoteName);
+
+      if (fs.existsSync(extNewNotePath)) {
+        fs.unlinkSync(extNewNotePath);
+        console.log(`Deleted external Note: ${extNewNotePath}`);
+      } else if (fs.existsSync(extOldNotePath)) {
+        fs.unlinkSync(extOldNotePath);
+        console.log(`Deleted external Note (old format): ${extOldNotePath}`);
       }
     }
 

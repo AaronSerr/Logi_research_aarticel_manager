@@ -13,6 +13,29 @@ import { Article } from '../../types/article';
 import { getDb } from '../database';
 import { StoragePaths, getTemplatePath } from '../paths';
 
+/**
+ * Generate file name from article ID and title
+ * Format: "PAPER001 - Article Title" (like make_name in old/utils.py)
+ * @param id Article ID (e.g., "PAPER001")
+ * @param title Article title
+ * @returns Safe file name without extension
+ */
+function makeName(id: string, title: string): string {
+  // Sanitize title: remove forbidden Windows filename characters
+  const cleanTitle = title
+    .replace(/[<>:"/\\|?*]/g, '-')  // Replace forbidden chars with dash
+    .replace(/_/g, ' ')              // Replace underscores with spaces
+    .trim();
+
+  const baseName = `${id} - ${cleanTitle}`;
+  const maxLength = 200; // Conservative limit for Windows paths
+
+  if (baseName.length > maxLength) {
+    return baseName.substring(0, maxLength).trim();
+  }
+  return baseName;
+}
+
 // Storage paths - resolved at runtime via StoragePaths module
 // This ensures correct paths in both dev and packaged mode
 const getPdfDir = () => StoragePaths.pdfs;
@@ -59,9 +82,10 @@ function copyToExternalIfEnabled(internalPath: string, subdir: 'pdfs' | 'notes',
 }
 
 // Upload PDF
-ipcMain.handle('files:uploadPdf', async (_event, articleId: string, fileBuffer: ArrayBuffer, fileName: string) => {
+// Now accepts articleTitle to generate proper file name: "PAPER001 - Title.pdf"
+ipcMain.handle('files:uploadPdf', async (_event, articleId: string, articleTitle: string, fileBuffer: ArrayBuffer) => {
   try {
-    const pdfFileName = `${articleId}.pdf`;
+    const pdfFileName = makeName(articleId, articleTitle) + '.pdf';
     const pdfPath = path.join(getPdfDir(), pdfFileName);
     const buffer = Buffer.from(fileBuffer);
 
@@ -85,12 +109,69 @@ ipcMain.handle('files:uploadPdf', async (_event, articleId: string, fileBuffer: 
   }
 });
 
+// Helper to get article title from DB
+function getArticleTitle(articleId: string): string | null {
+  try {
+    const db = getDb();
+    const stmt = db.prepare(`SELECT title FROM Article WHERE id = ?`);
+    const result = stmt.get(articleId) as { title: string } | undefined;
+    return result?.title || null;
+  } catch (error) {
+    console.error('Error getting article title:', error);
+    return null;
+  }
+}
+
+// Helper to find PDF file (tries new format first, then old format for backwards compatibility)
+function findPdfFile(articleId: string): string | null {
+  const pdfDir = getPdfDir();
+  const title = getArticleTitle(articleId);
+
+  // Try new format first: "PAPER001 - Title.pdf"
+  if (title) {
+    const newPath = path.join(pdfDir, makeName(articleId, title) + '.pdf');
+    if (fs.existsSync(newPath)) {
+      return newPath;
+    }
+  }
+
+  // Fallback to old format: "PAPER001.pdf"
+  const oldPath = path.join(pdfDir, `${articleId}.pdf`);
+  if (fs.existsSync(oldPath)) {
+    return oldPath;
+  }
+
+  return null;
+}
+
+// Helper to find Note file (tries new format first, then old format for backwards compatibility)
+function findNoteFile(articleId: string): string | null {
+  const notesDir = getNotesDir();
+  const title = getArticleTitle(articleId);
+
+  // Try new format first: "PAPER001 - Title.docx"
+  if (title) {
+    const newPath = path.join(notesDir, makeName(articleId, title) + '.docx');
+    if (fs.existsSync(newPath)) {
+      return newPath;
+    }
+  }
+
+  // Fallback to old format: "PAPER001.docx"
+  const oldPath = path.join(notesDir, `${articleId}.docx`);
+  if (fs.existsSync(oldPath)) {
+    return oldPath;
+  }
+
+  return null;
+}
+
 // Open PDF with system default application
 ipcMain.handle('files:openPdf', async (_event, articleId: string) => {
   try {
-    const pdfPath = path.join(getPdfDir(), `${articleId}.pdf`);
+    const pdfPath = findPdfFile(articleId);
 
-    if (!fs.existsSync(pdfPath)) {
+    if (!pdfPath) {
       throw new Error(`PDF not found for article ${articleId}`);
     }
 
@@ -104,12 +185,7 @@ ipcMain.handle('files:openPdf', async (_event, articleId: string) => {
 // Get PDF path for preview
 ipcMain.handle('files:getPdfPath', async (_event, articleId: string) => {
   try {
-    const pdfPath = path.join(getPdfDir(), `${articleId}.pdf`);
-
-    if (!fs.existsSync(pdfPath)) {
-      return null;
-    }
-
+    const pdfPath = findPdfFile(articleId);
     // Return the absolute path - we'll convert to file:// URL in renderer
     return pdfPath;
   } catch (error) {
@@ -121,9 +197,9 @@ ipcMain.handle('files:getPdfPath', async (_event, articleId: string) => {
 // Get PDF as base64 for preview
 ipcMain.handle('files:getPdfBase64', async (_event, articleId: string) => {
   try {
-    const pdfPath = path.join(getPdfDir(), `${articleId}.pdf`);
+    const pdfPath = findPdfFile(articleId);
 
-    if (!fs.existsSync(pdfPath)) {
+    if (!pdfPath) {
       return null;
     }
 
@@ -138,9 +214,9 @@ ipcMain.handle('files:getPdfBase64', async (_event, articleId: string) => {
 // Open Word note with system default application
 ipcMain.handle('files:openNote', async (_event, articleId: string) => {
   try {
-    const notePath = path.join(getNotesDir(), `${articleId}.docx`);
+    const notePath = findNoteFile(articleId);
 
-    if (!fs.existsSync(notePath)) {
+    if (!notePath) {
       throw new Error(`Note not found for article ${articleId}`);
     }
 
@@ -238,7 +314,7 @@ function prepareTemplateData(article: Article): Record<string, string> {
  */
 ipcMain.handle('files:generateNote', async (_event, article: Article) => {
   try {
-    const noteFileName = `${article.id}.docx`;
+    const noteFileName = makeName(article.id, article.title) + '.docx';
     const notesDir = getNotesDir();
     const notePath = path.join(notesDir, noteFileName);
 
@@ -287,6 +363,106 @@ ipcMain.handle('files:generateNote', async (_event, article: Article) => {
     copyToExternalIfEnabled(notePath, 'notes', noteFileName);
   } catch (error) {
     console.error('Error generating note:', error);
+    throw error;
+  }
+});
+
+/**
+ * Migrate file names from old format (PAPER001.pdf) to new format (PAPER001 - Title.pdf)
+ * This renames all existing PDFs and Notes to include the article title
+ */
+ipcMain.handle('files:migrateFileNames', async () => {
+  try {
+    const db = getDb();
+    const pdfDir = getPdfDir();
+    const notesDir = getNotesDir();
+
+    // Get all articles from DB
+    const articles = db.prepare(`SELECT id, title FROM Article`).all() as Array<{ id: string; title: string }>;
+
+    let migratedPdfs = 0;
+    let migratedNotes = 0;
+    const errors: string[] = [];
+
+    for (const article of articles) {
+      const oldPdfName = `${article.id}.pdf`;
+      const newPdfName = makeName(article.id, article.title) + '.pdf';
+      const oldPdfPath = path.join(pdfDir, oldPdfName);
+      const newPdfPath = path.join(pdfDir, newPdfName);
+
+      // Migrate PDF if old format exists and new format doesn't
+      if (fs.existsSync(oldPdfPath) && oldPdfName !== newPdfName) {
+        try {
+          // Remove new file if it somehow exists
+          if (fs.existsSync(newPdfPath)) {
+            fs.unlinkSync(newPdfPath);
+          }
+          fs.renameSync(oldPdfPath, newPdfPath);
+          migratedPdfs++;
+          console.log(`Migrated PDF: ${oldPdfName} → ${newPdfName}`);
+
+          // Also migrate in external storage if enabled
+          const external = getExternalStorageSettings();
+          if (external.enabled && external.path) {
+            const extOldPath = path.join(external.path, 'pdfs', oldPdfName);
+            const extNewPath = path.join(external.path, 'pdfs', newPdfName);
+            if (fs.existsSync(extOldPath)) {
+              if (fs.existsSync(extNewPath)) {
+                fs.unlinkSync(extNewPath);
+              }
+              fs.renameSync(extOldPath, extNewPath);
+              console.log(`Migrated external PDF: ${oldPdfName} → ${newPdfName}`);
+            }
+          }
+        } catch (err) {
+          errors.push(`PDF ${article.id}: ${err}`);
+        }
+      }
+
+      const oldNoteName = `${article.id}.docx`;
+      const newNoteName = makeName(article.id, article.title) + '.docx';
+      const oldNotePath = path.join(notesDir, oldNoteName);
+      const newNotePath = path.join(notesDir, newNoteName);
+
+      // Migrate Note if old format exists and new format doesn't
+      if (fs.existsSync(oldNotePath) && oldNoteName !== newNoteName) {
+        try {
+          // Remove new file if it somehow exists
+          if (fs.existsSync(newNotePath)) {
+            fs.unlinkSync(newNotePath);
+          }
+          fs.renameSync(oldNotePath, newNotePath);
+          migratedNotes++;
+          console.log(`Migrated Note: ${oldNoteName} → ${newNoteName}`);
+
+          // Also migrate in external storage if enabled
+          const external = getExternalStorageSettings();
+          if (external.enabled && external.path) {
+            const extOldPath = path.join(external.path, 'notes', oldNoteName);
+            const extNewPath = path.join(external.path, 'notes', newNoteName);
+            if (fs.existsSync(extOldPath)) {
+              if (fs.existsSync(extNewPath)) {
+                fs.unlinkSync(extNewPath);
+              }
+              fs.renameSync(extOldPath, extNewPath);
+              console.log(`Migrated external Note: ${oldNoteName} → ${newNoteName}`);
+            }
+          }
+        } catch (err) {
+          errors.push(`Note ${article.id}: ${err}`);
+        }
+      }
+    }
+
+    return {
+      success: true,
+      migratedPdfs,
+      migratedNotes,
+      totalArticles: articles.length,
+      errors: errors.length > 0 ? errors : undefined,
+    };
+  } catch (error) {
+    console.error('Error migrating file names:', error);
     throw error;
   }
 });

@@ -347,8 +347,9 @@ export default function ArticlePage() {
 
       const updatedArticle = await articlesApi.update(id, submissionData);
 
+      // Upload PDF if provided (uses new naming format: "PAPER001 - Title.pdf")
       if (pdfFile) {
-        await articlesApi.uploadPdf(id, pdfFile);
+        await articlesApi.uploadPdf(id, updatedArticle.title, pdfFile);
       }
 
       await articlesApi.generateNote(updatedArticle);

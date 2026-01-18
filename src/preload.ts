@@ -20,14 +20,16 @@ const electronAPI = {
 
   // File operations
   files: {
-    uploadPdf: (articleId: string, fileBuffer: ArrayBuffer, fileName: string): Promise<string> =>
-      ipcRenderer.invoke('files:uploadPdf', articleId, fileBuffer, fileName),
+    uploadPdf: (articleId: string, articleTitle: string, fileBuffer: ArrayBuffer): Promise<string> =>
+      ipcRenderer.invoke('files:uploadPdf', articleId, articleTitle, fileBuffer),
     openPdf: (articleId: string): Promise<void> => ipcRenderer.invoke('files:openPdf', articleId),
     getPdfPath: (articleId: string): Promise<string | null> => ipcRenderer.invoke('files:getPdfPath', articleId),
     getPdfBase64: (articleId: string): Promise<string | null> => ipcRenderer.invoke('files:getPdfBase64', articleId),
     openNote: (articleId: string): Promise<void> => ipcRenderer.invoke('files:openNote', articleId),
     generateNote: (article: Article): Promise<void> => ipcRenderer.invoke('files:generateNote', article),
     openUrl: (url: string): Promise<void> => ipcRenderer.invoke('files:openUrl', url),
+    migrateFileNames: (): Promise<{success: boolean; migratedPdfs: number; migratedNotes: number; totalArticles: number; errors?: string[]}> =>
+      ipcRenderer.invoke('files:migrateFileNames'),
   },
 
   // Settings operations

@@ -40,6 +40,9 @@ export default function Settings() {
   });
   const [copyingToExternal, setCopyingToExternal] = useState(false);
 
+  // Migration state
+  const [migrating, setMigrating] = useState(false);
+
   // Import/Export state
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -182,6 +185,37 @@ export default function Settings() {
       setMessage({ type: 'error', text: `Copy failed: ${error.message}` });
     } finally {
       setCopyingToExternal(false);
+    }
+  };
+
+  // File name migration handler
+  const handleMigrateFileNames = async () => {
+    try {
+      const confirmed = window.confirm(t('migration.confirm'));
+      if (!confirmed) return;
+
+      setMigrating(true);
+      setMessage({ type: 'success', text: t('migration.migrating') });
+
+      const result = await articlesApi.migrateFileNames();
+
+      if (result.success) {
+        const successText = t('migration.success')
+          .replace('{pdfs}', String(result.migratedPdfs))
+          .replace('{notes}', String(result.migratedNotes));
+
+        let finalMessage = `✅ ${successText}`;
+        if (result.errors && result.errors.length > 0) {
+          finalMessage += ` (${t('migration.errors')}: ${result.errors.length})`;
+        }
+
+        setMessage({ type: 'success', text: finalMessage });
+        setTimeout(() => setMessage(null), 7000);
+      }
+    } catch (error: any) {
+      setMessage({ type: 'error', text: `Migration failed: ${error.message}` });
+    } finally {
+      setMigrating(false);
     }
   };
 
@@ -607,6 +641,27 @@ export default function Settings() {
               </button>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* File Migration */}
+      <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mb-6">
+        <h2 className="text-xl font-semibold mb-4">🔄 {t('migration.title')}</h2>
+
+        <div className="space-y-4">
+          <div className="bg-orange-50 dark:bg-orange-900 border border-orange-200 dark:border-orange-700 rounded-lg p-4">
+            <p className="text-sm text-orange-800 dark:text-orange-200">
+              {t('migration.description')}
+            </p>
+          </div>
+
+          <button
+            onClick={handleMigrateFileNames}
+            disabled={migrating}
+            className="w-full bg-orange-600 text-white py-2 px-4 rounded-lg hover:opacity-90 disabled:opacity-50"
+          >
+            {migrating ? `⏳ ${t('migration.migrating')}` : `🔄 ${t('migration.btn')}`}
+          </button>
         </div>
       </section>
 

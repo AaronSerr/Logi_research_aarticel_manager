@@ -166,6 +166,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'storage.copying': 'Copying...',
     'storage.copyPrompt': 'Copy all existing PDFs and Notes to the external folder:',
 
+    // File Migration
+    'migration.title': 'File Migration',
+    'migration.description': 'Rename existing files from old format (PAPER001.pdf) to new format with title (PAPER001 - Article Title.pdf).',
+    'migration.btn': 'Migrate File Names',
+    'migration.migrating': 'Migrating...',
+    'migration.success': 'Migration complete! PDFs: {pdfs}, Notes: {notes}',
+    'migration.errors': 'Some files had errors',
+    'migration.confirm': 'This will rename all PDF and Note files to include article titles. Continue?',
+
     // Import/Export
     'importExport.title': 'Import / Export Data',
     'importExport.description.export': 'Download all your articles as CSV file.',
@@ -363,6 +372,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'storage.copy': 'Copier les fichiers existants',
     'storage.copying': 'Copie en cours...',
     'storage.copyPrompt': 'Copier tous les PDFs et Notes existants vers le dossier externe :',
+
+    // File Migration
+    'migration.title': 'Migration des fichiers',
+    'migration.description': 'Renommer les fichiers existants du format ancien (PAPER001.pdf) au nouveau format avec titre (PAPER001 - Titre.pdf).',
+    'migration.btn': 'Migrer les noms de fichiers',
+    'migration.migrating': 'Migration en cours...',
+    'migration.success': 'Migration terminée ! PDFs : {pdfs}, Notes : {notes}',
+    'migration.errors': 'Certains fichiers ont eu des erreurs',
+    'migration.confirm': 'Ceci va renommer tous les fichiers PDF et Notes pour inclure les titres. Continuer ?',
 
     // Import/Export
     'importExport.title': 'Import / Export de données',
@@ -562,6 +580,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'storage.copying': 'Copiando...',
     'storage.copyPrompt': 'Copiar todos los PDFs y Notas existentes a la carpeta externa:',
 
+    // File Migration
+    'migration.title': 'Migración de archivos',
+    'migration.description': 'Renombrar archivos existentes del formato antiguo (PAPER001.pdf) al nuevo formato con título (PAPER001 - Título.pdf).',
+    'migration.btn': 'Migrar nombres de archivos',
+    'migration.migrating': 'Migrando...',
+    'migration.success': '¡Migración completa! PDFs: {pdfs}, Notas: {notes}',
+    'migration.errors': 'Algunos archivos tuvieron errores',
+    'migration.confirm': 'Esto renombrará todos los archivos PDF y Notas para incluir títulos. ¿Continuar?',
+
     // Import/Export
     'importExport.title': 'Importar / Exportar datos',
     'importExport.description.export': 'Descargue todos sus artículos como archivo CSV.',
@@ -759,6 +786,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'storage.copy': '复制现有文件',
     'storage.copying': '复制中...',
     'storage.copyPrompt': '将所有现有PDF和笔记复制到外部文件夹：',
+
+    // File Migration
+    'migration.title': '文件迁移',
+    'migration.description': '将现有文件从旧格式（PAPER001.pdf）重命名为新格式（PAPER001 - 标题.pdf）。',
+    'migration.btn': '迁移文件名',
+    'migration.migrating': '迁移中...',
+    'migration.success': '迁移完成！PDF：{pdfs}，笔记：{notes}',
+    'migration.errors': '部分文件出错',
+    'migration.confirm': '这将重命名所有PDF和笔记文件以包含标题。继续？',
 
     // Import/Export
     'importExport.title': '导入/导出数据',
@@ -958,6 +994,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'storage.copying': 'جاري النسخ...',
     'storage.copyPrompt': 'نسخ جميع ملفات PDF والملاحظات إلى المجلد الخارجي:',
 
+    // File Migration
+    'migration.title': 'ترحيل الملفات',
+    'migration.description': 'إعادة تسمية الملفات من التنسيق القديم (PAPER001.pdf) إلى التنسيق الجديد مع العنوان (PAPER001 - العنوان.pdf).',
+    'migration.btn': 'ترحيل أسماء الملفات',
+    'migration.migrating': 'جاري الترحيل...',
+    'migration.success': 'اكتمل الترحيل! PDF: {pdfs}، ملاحظات: {notes}',
+    'migration.errors': 'بعض الملفات بها أخطاء',
+    'migration.confirm': 'سيتم إعادة تسمية جميع ملفات PDF والملاحظات لتشمل العناوين. متابعة؟',
+
     // Import/Export
     'importExport.title': 'استيراد / تصدير البيانات',
     'importExport.description.export': 'تحميل جميع المقالات كملف CSV.',
@@ -1155,6 +1200,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'storage.copy': 'Копировать существующие файлы',
     'storage.copying': 'Копирование...',
     'storage.copyPrompt': 'Копировать все существующие PDF и заметки:',
+
+    // File Migration
+    'migration.title': 'Миграция файлов',
+    'migration.description': 'Переименовать файлы из старого формата (PAPER001.pdf) в новый формат с названием (PAPER001 - Название.pdf).',
+    'migration.btn': 'Мигрировать имена файлов',
+    'migration.migrating': 'Миграция...',
+    'migration.success': 'Миграция завершена! PDF: {pdfs}, Заметки: {notes}',
+    'migration.errors': 'Некоторые файлы содержали ошибки',
+    'migration.confirm': 'Это переименует все PDF и заметки, добавив названия. Продолжить?',
 
     // Import/Export
     'importExport.title': 'Импорт / Экспорт данных',
@@ -1354,6 +1408,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'storage.copying': 'מעתיק...',
     'storage.copyPrompt': 'העתק את כל קבצי ה-PDF וההערות הקיימים:',
 
+    // File Migration
+    'migration.title': 'העברת קבצים',
+    'migration.description': 'שנה שמות קבצים מהפורמט הישן (PAPER001.pdf) לפורמט החדש עם כותרת (PAPER001 - כותרת.pdf).',
+    'migration.btn': 'העבר שמות קבצים',
+    'migration.migrating': 'מעביר...',
+    'migration.success': 'ההעברה הושלמה! PDF: {pdfs}, הערות: {notes}',
+    'migration.errors': 'חלק מהקבצים כללו שגיאות',
+    'migration.confirm': 'זה ישנה את שמות כל קבצי ה-PDF וההערות לכלול כותרות. להמשיך?',
+
     // Import/Export
     'importExport.title': 'ייבוא / ייצוא נתונים',
     'importExport.description.export': 'הורד את כל המאמרים כקובץ CSV.',
@@ -1551,6 +1614,15 @@ export const translations: Record<Language, Record<string, string>> = {
     'storage.copy': 'Copia file esistenti',
     'storage.copying': 'Copia in corso...',
     'storage.copyPrompt': 'Copia tutti i PDF e le note esistenti:',
+
+    // File Migration
+    'migration.title': 'Migrazione file',
+    'migration.description': 'Rinomina i file dal formato vecchio (PAPER001.pdf) al nuovo formato con titolo (PAPER001 - Titolo.pdf).',
+    'migration.btn': 'Migra nomi file',
+    'migration.migrating': 'Migrazione in corso...',
+    'migration.success': 'Migrazione completata! PDF: {pdfs}, Note: {notes}',
+    'migration.errors': 'Alcuni file hanno avuto errori',
+    'migration.confirm': 'Questo rinominerà tutti i file PDF e Note per includere i titoli. Continuare?',
 
     // Import/Export
     'importExport.title': 'Importa / Esporta dati',

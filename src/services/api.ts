@@ -35,10 +35,11 @@ export const articlesApi = {
   },
 
   // Upload PDF
-  async uploadPdf(articleId: string, file: File): Promise<string> {
+  // Now requires articleTitle for file naming: "{id} - {title}.pdf"
+  async uploadPdf(articleId: string, articleTitle: string, file: File): Promise<string> {
     // Convert File to ArrayBuffer for IPC transfer
     const arrayBuffer = await file.arrayBuffer();
-    return electronAPI.files.uploadPdf(articleId, arrayBuffer, file.name);
+    return electronAPI.files.uploadPdf(articleId, articleTitle, arrayBuffer);
   },
 
   // Generate Word note
@@ -59,6 +60,11 @@ export const articlesApi = {
   // Open URL in system default browser
   async openUrl(url: string): Promise<void> {
     return electronAPI.files.openUrl(url);
+  },
+
+  // Migrate file names from old format (PAPER001.pdf) to new format (PAPER001 - Title.pdf)
+  async migrateFileNames(): Promise<{success: boolean; migratedPdfs: number; migratedNotes: number; totalArticles: number; errors?: string[]}> {
+    return electronAPI.files.migrateFileNames();
   },
 };
 
