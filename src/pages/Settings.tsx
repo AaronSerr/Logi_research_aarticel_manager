@@ -74,7 +74,7 @@ export default function Settings() {
         });
       } catch (error: any) {
         console.error('Error loading settings:', error);
-        setMessage({ type: 'error', text: 'Failed to load settings' });
+        setMessage({ type: 'error', text: t('error.failedToLoadSettings') });
       } finally {
         setLoading(false);
       }
@@ -137,7 +137,7 @@ export default function Settings() {
       setMessage(null);
 
       if (externalStorage.enabled && !externalStorage.path) {
-        setMessage({ type: 'error', text: 'Please select an external folder first.' });
+        setMessage({ type: 'error', text: t('storage.selectFolderFirst') });
         return;
       }
 
@@ -158,18 +158,18 @@ export default function Settings() {
   const handleCopyExistingToExternal = async () => {
     try {
       if (!externalStorage.path) {
-        setMessage({ type: 'error', text: 'Please select an external folder first.' });
+        setMessage({ type: 'error', text: t('storage.selectFolderFirst') });
         return;
       }
 
       const confirmed = window.confirm(
-        `This will copy all existing PDFs and Notes to:\n${externalStorage.path}\n\nContinue?`
+        t('storage.copyConfirm').replace('{path}', externalStorage.path)
       );
 
       if (!confirmed) return;
 
       setCopyingToExternal(true);
-      setMessage({ type: 'success', text: 'Copying files to external storage...' });
+      setMessage({ type: 'success', text: t('storage.copyingFiles') });
 
       const result = await window.electronAPI.storage.copyToExternal(externalStorage.path);
 
@@ -178,7 +178,7 @@ export default function Settings() {
         setTimeout(() => setMessage(null), 5000);
       }
     } catch (error: any) {
-      setMessage({ type: 'error', text: `Copy failed: ${error.message}` });
+      setMessage({ type: 'error', text: `${t('storage.copyFailed')}: ${error.message}` });
     } finally {
       setCopyingToExternal(false);
     }
@@ -309,7 +309,7 @@ export default function Settings() {
       setMessage(null);
 
       if (!file.name.endsWith('.csv')) {
-        throw new Error('Please select a CSV file');
+        throw new Error(t('importExport.selectCsvFile'));
       }
 
       const text = await file.text();

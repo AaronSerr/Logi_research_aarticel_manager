@@ -1188,19 +1188,19 @@ export default function Library() {
                       <strong>📋 ID:</strong> {selectedArticleData.id}
                     </p>
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      <strong>📅 Date:</strong> {formatDate(selectedArticleData.date)}
+                      <strong>📅 {t('field.date')}:</strong> {formatDate(selectedArticleData.date)}
                     </p>
                     {selectedArticleData.journal && (
                       <p className="text-sm text-gray-600 dark:text-gray-300">
-                        <strong>📰 Journal:</strong> {selectedArticleData.journal}
+                        <strong>📰 {t('field.journal')}:</strong> {selectedArticleData.journal}
                       </p>
                     )}
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      <strong>🌐 Language:</strong> {selectedArticleData.language || 'English'}
+                      <strong>🌐 {t('field.language')}:</strong> {selectedArticleData.language || 'English'}
                     </p>
                     {selectedArticleData.numPages > 0 && (
                       <p className="text-sm text-gray-600 dark:text-gray-300">
-                        <strong>📄 Pages:</strong> {selectedArticleData.numPages}
+                        <strong>📄 {t('library.pages')}:</strong> {selectedArticleData.numPages}
                       </p>
                     )}
                   </div>
@@ -1208,29 +1208,29 @@ export default function Library() {
                   {/* Colonne droite - 2/3 */}
                   <div className="col-span-2 space-y-2">
                     <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
-                      <strong>👤 Authors:</strong>{' '}
+                      <strong>👤 {t('field.authors')}:</strong>{' '}
                       {selectedArticleData.authors?.map((a) => a.name).join(', ')}
                     </p>
                     {selectedArticleData.universities && selectedArticleData.universities.length > 0 && (
                       <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
-                        <strong>🎓 Universities:</strong>{' '}
+                        <strong>🎓 {t('field.universities')}:</strong>{' '}
                         {selectedArticleData.universities.map((u) => u.name).join(', ')}
                       </p>
                     )}
                     {selectedArticleData.companies && selectedArticleData.companies.length > 0 && (
                       <p className="text-sm text-gray-600 dark:text-gray-300 truncate">
-                        <strong>🏢 Companies:</strong>{' '}
+                        <strong>🏢 {t('field.companies')}:</strong>{' '}
                         {selectedArticleData.companies.map((c) => c.name).join(', ')}
                       </p>
                     )}
                     <p className="text-sm text-gray-600 dark:text-gray-300">
-                      <strong>⭐ Rating:</strong> {starBar(selectedArticleData.rating)} (
+                      <strong>⭐ {t('field.rating')}:</strong> {starBar(selectedArticleData.rating)} (
                       {selectedArticleData.rating}/5)
                     </p>
                     {selectedArticleData.doi && (
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-600 dark:text-gray-300">
-                          <strong>🔗 DOI:</strong>
+                          <strong>🔗 {t('field.doi')}:</strong>
                         </span>
                         <button
                           onClick={() => {
@@ -1239,7 +1239,7 @@ export default function Library() {
                           className="text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 px-2 py-0.5 rounded transition-colors"
                           title={`Copy DOI: ${selectedArticleData.doi}`}
                         >
-                          📋 Copy
+                          📋 {t('common.copy')}
                         </button>
                         <button
                           onClick={async () => {
@@ -1267,7 +1267,7 @@ export default function Library() {
                           className="text-xs bg-blue-500 dark:bg-blue-600 text-white hover:bg-blue-600 dark:hover:bg-blue-700 px-2 py-0.5 rounded transition-colors"
                           title={`Open DOI: ${selectedArticleData.doi}`}
                         >
-                          🔗 Open
+                          🔗 {t('common.open')}
                         </button>
                       </div>
                     )}
@@ -1279,7 +1279,7 @@ export default function Library() {
                   (selectedArticleData.tags && selectedArticleData.tags.length > 0) ||
                   (selectedArticleData.subjects && selectedArticleData.subjects.length > 0)) && (
                   <div className="pb-4 border-b border-gray-200 dark:border-gray-700">
-                    <h3 className="font-semibold mb-3">🏷️ Classification</h3>
+                    <h3 className="font-semibold mb-3">🏷️ {t('article.classification')}</h3>
                     <div className="space-y-3">
                       {/* Keywords et Subjects sur la même ligne (4/5 - 1/5) */}
                       {((selectedArticleData.keywords && selectedArticleData.keywords.length > 0) ||
@@ -1289,7 +1289,7 @@ export default function Library() {
                           {selectedArticleData.keywords && selectedArticleData.keywords.length > 0 && (
                             <div className="flex-[4] pr-4 border-r border-gray-300 dark:border-gray-600">
                               <span className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">
-                                Keywords
+                                {t('field.keywords')}
                               </span>
                               <div className="flex flex-wrap gap-2">
                                 {selectedArticleData.keywords.map((kw) => (
@@ -1308,7 +1308,7 @@ export default function Library() {
                           {selectedArticleData.subjects && selectedArticleData.subjects.length > 0 && (
                             <div className="flex-1">
                               <span className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">
-                                Subjects
+                                {t('field.subjects')}
                               </span>
                               <div className="flex flex-wrap gap-2">
                                 {selectedArticleData.subjects.map((subject) => (
@@ -1329,7 +1329,7 @@ export default function Library() {
                       {selectedArticleData.tags && selectedArticleData.tags.length > 0 && (
                         <div>
                           <span className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 block">
-                            Tags
+                            {t('field.tags')}
                           </span>
                           <div className="flex flex-wrap gap-2">
                             {selectedArticleData.tags.map((tag) => (
@@ -1348,7 +1348,7 @@ export default function Library() {
                 )}
 
                 <div>
-                  <h3 className="font-semibold mb-2">Abstract</h3>
+                  <h3 className="font-semibold mb-2">{t('field.abstract')}</h3>
                   <p className="text-sm text-gray-700 dark:text-gray-300">
                     {selectedArticleData.abstract}
                   </p>
@@ -1357,16 +1357,16 @@ export default function Library() {
                 {/* Last modification */}
                 {selectedArticleData.updatedAt && (
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    🕒 Last modified: {formatDateTime(selectedArticleData.updatedAt)}
+                    🕒 {t('preview.lastModified')}: {formatDateTime(selectedArticleData.updatedAt)}
                   </p>
                 )}
 
                 {/* Notes indicator */}
                 <div className="text-sm text-gray-600 dark:text-gray-400 italic">
                   {selectedArticleData.notes ? (
-                    <p>📝 Notes are available for this article.</p>
+                    <p>📝 {t('preview.notesAvailable')}</p>
                   ) : (
-                    <p>📝 You haven't written any notes for this article yet.</p>
+                    <p>📝 {t('preview.noNotes')}</p>
                   )}
                 </div>
 
@@ -1397,13 +1397,13 @@ export default function Library() {
                               setModalError(null);
                               await articlesApi.openPdf(selectedArticleData.id);
                             } catch (error: any) {
-                              setModalError('Failed to open PDF: ' + error.message);
+                              setModalError(t('error.failedToOpenPdf') + ': ' + error.message);
                               setTimeout(() => setModalError(null), 5000);
                             }
                           }}
                           className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity"
                         >
-                          📄 Open PDF
+                          📄 {t('preview.openPdf')}
                         </button>
                         <button
                           onClick={async () => {
@@ -1411,19 +1411,19 @@ export default function Library() {
                               setModalError(null);
                               await articlesApi.openNote(selectedArticleData.id);
                             } catch (error: any) {
-                              setModalError('Failed to open note: ' + error.message);
+                              setModalError(t('error.failedToOpenNote') + ': ' + error.message);
                               setTimeout(() => setModalError(null), 5000);
                             }
                           }}
                           className="px-4 py-2 bg-green-600 text-white rounded-lg hover:opacity-90 transition-opacity"
                         >
-                          📝 Open Note
+                          📝 {t('preview.openNote')}
                         </button>
                         <button
                           onClick={() => navigate(`/article/${selectedArticleData.id}`)}
                           className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:opacity-90 transition-opacity"
                         >
-                          👁️ View / Edit
+                          👁️ {t('preview.viewEdit')}
                         </button>
                       </div>
 
@@ -1443,7 +1443,7 @@ export default function Library() {
                                 )
                               );
                             } catch (error: any) {
-                              setModalError('Failed to update read status: ' + error.message);
+                              setModalError(t('error.failedToUpdateRead') + ': ' + error.message);
                               setTimeout(() => setModalError(null), 5000);
                             }
                           }}
@@ -1453,7 +1453,7 @@ export default function Library() {
                               : 'bg-gray-400 dark:bg-gray-600 text-white'
                           }`}
                         >
-                          {selectedArticleData.read ? '👁️ Read' : '📌 Unread'}
+                          {selectedArticleData.read ? `👁️ ${t('preview.markRead')}` : `📌 ${t('preview.markUnread')}`}
                         </button>
                         <button
                           onClick={async (e) => {
@@ -1469,7 +1469,7 @@ export default function Library() {
                                 )
                               );
                             } catch (error: any) {
-                              setModalError('Failed to update favorite status: ' + error.message);
+                              setModalError(t('error.failedToUpdateFavorite') + ': ' + error.message);
                               setTimeout(() => setModalError(null), 5000);
                             }
                           }}
@@ -1479,7 +1479,7 @@ export default function Library() {
                               : 'bg-gray-400 dark:bg-gray-600 text-white'
                           }`}
                         >
-                          {selectedArticleData.favorite ? '⭐ Favorite' : '☆ Not Favorite'}
+                          {selectedArticleData.favorite ? `⭐ ${t('preview.markFavorite')}` : `☆ ${t('preview.markNotFavorite')}`}
                         </button>
                       </div>
                     </div>
@@ -1489,7 +1489,7 @@ export default function Library() {
                       onClick={() => handleDeleteClick(selectedArticleData.id)}
                       className="px-4 py-2 bg-red-600 text-white rounded-lg hover:opacity-90 transition-opacity"
                     >
-                      🗑️ Delete
+                      🗑️ {t('preview.delete')}
                     </button>
                   </div>
                 </div>
@@ -1514,14 +1514,14 @@ export default function Library() {
             <div className="mb-4">
               <h3 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2 flex items-center gap-2">
                 <span className="text-2xl">⚠️</span>
-                Delete Article
+                {t('preview.deleteTitle')}
               </h3>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Are you sure you want to delete this article? This action is <strong>permanent</strong> and cannot be undone.
+                {t('preview.deleteWarning')}
               </p>
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4">
                 <p className="text-sm text-red-800 dark:text-red-200">
-                  To confirm deletion, please type the article ID below:
+                  {t('preview.typeIdToConfirm')}
                 </p>
                 <p className="text-lg font-mono font-bold text-red-600 dark:text-red-400 mt-1">
                   {deleteArticleId}
@@ -1531,7 +1531,7 @@ export default function Library() {
                 type="text"
                 value={deleteConfirmInput}
                 onChange={(e) => setDeleteConfirmInput(e.target.value)}
-                placeholder="Type article ID here"
+                placeholder={t('preview.typeIdPlaceholder')}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                 autoFocus
               />
@@ -1544,14 +1544,14 @@ export default function Library() {
                 }}
                 className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleDeleteConfirm}
                 disabled={deleteConfirmInput !== deleteArticleId}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Delete Article
+                {t('preview.deleteTitle')}
               </button>
             </div>
           </div>

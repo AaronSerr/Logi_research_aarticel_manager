@@ -66,30 +66,30 @@ export default function AddArticle() {
 
     // Validate required fields
     if (!formData.title.trim()) {
-      setError('Title is required');
+      setError(t('error.titleRequired'));
       return;
     }
 
     if (authorsInput.trim().length === 0) {
-      setError('At least one author is required');
+      setError(t('error.authorRequired'));
       return;
     }
 
     if (!formData.abstract.trim()) {
-      setError('Abstract is required');
+      setError(t('error.abstractRequired'));
       return;
     }
 
     // Check if PDF is missing
     if (!pdfFile && !formData.doi?.trim()) {
-      setWarning('No PDF file and no DOI provided. Are you sure you want to continue?');
+      setWarning(t('addArticle.noPdfNoDoi'));
       setShowNoPdfConfirm(true);
       return;
     }
 
     // If PDF missing but DOI present, show warning but allow
     if (!pdfFile && formData.doi?.trim()) {
-      setWarning('No PDF file uploaded, but DOI is present.');
+      setWarning(t('addArticle.noPdfButDoi'));
     }
 
     await submitArticle();
@@ -143,7 +143,7 @@ export default function AddArticle() {
         navigate('/library');
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'Failed to add article');
+      setError(err.message || t('error.failedToAdd'));
     } finally {
       setLoading(false);
     }
@@ -173,17 +173,17 @@ export default function AddArticle() {
 
   return (
     <div className="p-8 pb-32">
-      <h1 className="text-3xl font-bold mb-6">➕ Add New Article</h1>
+      <h1 className="text-3xl font-bold mb-6">➕ {t('addArticle.title')}</h1>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
         <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('addArticle.basicInfo')}</h2>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1">
-                Title <span className="text-red-500">*</span>
+                {t('field.title')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -196,7 +196,7 @@ export default function AddArticle() {
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                Author(s) (comma-separated) <span className="text-red-500">*</span>
+                {t('addArticle.authorsSeparated')} <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -211,7 +211,7 @@ export default function AddArticle() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Publication Date <span className="text-red-500">*</span>
+                  {t('addArticle.pubDate')} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -239,7 +239,7 @@ export default function AddArticle() {
                     className="w-5 h-5 rounded accent-blue-600"
                     style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }}
                   />
-                  <span className="dark:text-white">Already read 👁️</span>
+                  <span className="dark:text-white">{t('addArticle.alreadyRead')} 👁️</span>
                 </label>
 
                 <label className="flex items-center gap-2 px-3 py-[0.4rem] border border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-lg h-[42px]">
@@ -250,14 +250,14 @@ export default function AddArticle() {
                     className="w-5 h-5 rounded accent-blue-600"
                     style={{ colorScheme: theme === 'dark' ? 'dark' : 'light' }}
                   />
-                  <span className="dark:text-white">Favorite ⭐</span>
+                  <span className="dark:text-white">{t('field.favorite')} ⭐</span>
                 </label>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                Abstract <span className="text-red-500">*</span>
+                {t('field.abstract')} <span className="text-red-500">*</span>
               </label>
               <CleanTextarea
                 value={formData.abstract}
@@ -270,7 +270,7 @@ export default function AddArticle() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">DOI</label>
+                <label className="block text-sm font-medium mb-1">{t('field.doi')}</label>
                 <input
                   type="text"
                   value={formData.doi}
@@ -281,7 +281,7 @@ export default function AddArticle() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Journal</label>
+                <label className="block text-sm font-medium mb-1">{t('field.journal')}</label>
                 <input
                   type="text"
                   value={formData.journal}
@@ -295,7 +295,7 @@ export default function AddArticle() {
 
         {/* PDF Upload */}
         <section className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">📄 PDF Upload</h2>
+          <h2 className="text-xl font-semibold mb-4">📄 {t('addArticle.pdfUpload')}</h2>
 
           <div
             onDrop={handlePdfDrop}
@@ -310,12 +310,12 @@ export default function AddArticle() {
                   onClick={() => setPdfFile(null)}
                   className="text-sm text-red-500 mt-2"
                 >
-                  Remove
+                  {t('common.remove')}
                 </button>
               </div>
             ) : (
               <div>
-                <p className="mb-2">Drag & drop PDF here, or</p>
+                <p className="mb-2">{t('addArticle.dragDropPdf')}</p>
                 <input
                   type="file"
                   accept="application/pdf"
@@ -327,7 +327,7 @@ export default function AddArticle() {
                   htmlFor="pdf-upload"
                   className="inline-block px-4 py-2 bg-primary text-white rounded-lg cursor-pointer hover:opacity-90"
                 >
-                  Browse Files
+                  {t('addArticle.browseFiles')}
                 </label>
               </div>
             )}
@@ -337,13 +337,13 @@ export default function AddArticle() {
         {/* Additional Metadata (Collapsible) */}
         <details className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <summary className="text-xl font-semibold cursor-pointer">
-            💼 Additional Information
+            💼 {t('addArticle.additionalInfo')}
           </summary>
 
           <div className="mt-4 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Language</label>
+                <label className="block text-sm font-medium mb-1">{t('field.language')}</label>
                 <select
                   value={formData.language}
                   onChange={(e) => setFormData({ ...formData, language: e.target.value })}
@@ -356,7 +356,7 @@ export default function AddArticle() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Number of Pages</label>
+                <label className="block text-sm font-medium mb-1">{t('field.numPages')}</label>
                 <input
                   type="number"
                   value={formData.numPages}
@@ -367,7 +367,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">University(ies) (comma-separated)</label>
+              <label className="block text-sm font-medium mb-1">{t('addArticle.universitiesSeparated')}</label>
               <input
                 type="text"
                 value={universitiesInput}
@@ -378,7 +378,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Company(ies) (comma-separated)</label>
+              <label className="block text-sm font-medium mb-1">{t('addArticle.companiesSeparated')}</label>
               <input
                 type="text"
                 value={companiesInput}
@@ -389,7 +389,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Conclusion</label>
+              <label className="block text-sm font-medium mb-1">{t('field.conclusion')}</label>
               <CleanTextarea
                 value={formData.conclusion}
                 onChange={(value) => setFormData({ ...formData, conclusion: value })}
@@ -399,7 +399,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Keywords (comma-separated)</label>
+              <label className="block text-sm font-medium mb-1">{t('addArticle.keywordsSeparated')}</label>
               <input
                 type="text"
                 value={keywordsInput}
@@ -410,7 +410,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Tags (comma-separated)</label>
+              <label className="block text-sm font-medium mb-1">{t('addArticle.tagsSeparated')}</label>
               <input
                 type="text"
                 value={tagsInput}
@@ -425,12 +425,12 @@ export default function AddArticle() {
         {/* Research Content (Collapsible) */}
         <details className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <summary className="text-xl font-semibold cursor-pointer">
-            🔬 Research Content
+            🔬 {t('addArticle.researchContent')}
           </summary>
 
           <div className="mt-4 space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Topics Covered</label>
+              <label className="block text-sm font-medium mb-1">{t('addArticle.topicsCovered')}</label>
               <input
                 type="text"
                 value={subjectsInput}
@@ -441,7 +441,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Research Question</label>
+              <label className="block text-sm font-medium mb-1">{t('field.researchQuestion')}</label>
               <CleanTextarea
                 value={formData.researchQuestion}
                 onChange={(value) => setFormData({ ...formData, researchQuestion: value })}
@@ -451,7 +451,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Methodology</label>
+              <label className="block text-sm font-medium mb-1">{t('field.methodology')}</label>
               <CleanTextarea
                 value={formData.methodology}
                 onChange={(value) => setFormData({ ...formData, methodology: value })}
@@ -461,7 +461,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Data Used</label>
+              <label className="block text-sm font-medium mb-1">{t('field.dataUsed')}</label>
               <CleanTextarea
                 value={formData.dataUsed}
                 onChange={(value) => setFormData({ ...formData, dataUsed: value })}
@@ -471,7 +471,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Results</label>
+              <label className="block text-sm font-medium mb-1">{t('field.results')}</label>
               <CleanTextarea
                 value={formData.results}
                 onChange={(value) => setFormData({ ...formData, results: value })}
@@ -481,7 +481,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Limitations</label>
+              <label className="block text-sm font-medium mb-1">{t('field.limitations')}</label>
               <CleanTextarea
                 value={formData.limitations}
                 onChange={(value) => setFormData({ ...formData, limitations: value })}
@@ -495,12 +495,12 @@ export default function AddArticle() {
         {/* Notes & Comments (Collapsible) */}
         <details className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <summary className="text-xl font-semibold cursor-pointer">
-            📌 Notes & Comments
+            📌 {t('addArticle.notesComments')}
           </summary>
 
           <div className="mt-4 space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Rating</label>
+              <label className="block text-sm font-medium mb-1">{t('field.rating')}</label>
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -518,14 +518,14 @@ export default function AddArticle() {
                     onClick={() => setFormData({ ...formData, rating: 0 })}
                     className="ml-2 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
                   >
-                    Reset
+                    {t('common.reset')}
                   </button>
                 )}
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">First Impressions</label>
+              <label className="block text-sm font-medium mb-1">{t('field.firstImp')}</label>
               <CleanTextarea
                 value={formData.firstImp}
                 onChange={(value) => setFormData({ ...formData, firstImp: value })}
@@ -535,7 +535,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Personal Notes</label>
+              <label className="block text-sm font-medium mb-1">{t('field.notes')}</label>
               <CleanTextarea
                 value={formData.notes}
                 onChange={(value) => setFormData({ ...formData, notes: value })}
@@ -545,7 +545,7 @@ export default function AddArticle() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Comments</label>
+              <label className="block text-sm font-medium mb-1">{t('field.comment')}</label>
               <CleanTextarea
                 value={formData.comment}
                 onChange={(value) => setFormData({ ...formData, comment: value })}
@@ -575,7 +575,7 @@ export default function AddArticle() {
           {/* Success Message */}
           {success && (
             <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-600 text-green-700 dark:text-green-200 px-5 py-2.5 rounded-lg text-sm font-medium">
-              ✅ Article added successfully! Redirecting...
+              ✅ {t('addArticle.successRedirect')}
             </div>
           )}
 
@@ -596,14 +596,14 @@ export default function AddArticle() {
               onClick={() => navigate('/library')}
               className="px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="flex-1 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 disabled:opacity-50"
             >
-              {loading ? 'Adding Article...' : '➕ Add Article'}
+              {loading ? t('addArticle.addingArticle') : `➕ ${t('addArticle.addArticle')}`}
             </button>
           </div>
         </div>
@@ -612,7 +612,7 @@ export default function AddArticle() {
         {showNoPdfConfirm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-md">
-              <h3 className="text-xl font-bold mb-4 text-orange-600 dark:text-orange-400">⚠️ Warning</h3>
+              <h3 className="text-xl font-bold mb-4 text-orange-600 dark:text-orange-400">⚠️ {t('common.warning')}</h3>
               <p className="mb-6 text-gray-700 dark:text-gray-300">{warning}</p>
               <div className="flex gap-3 justify-end">
                 <button
@@ -623,14 +623,14 @@ export default function AddArticle() {
                   }}
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="button"
                   onClick={submitArticle}
                   className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
                 >
-                  Yes, Add Anyway
+                  {t('addArticle.yesAddAnyway')}
                 </button>
               </div>
             </div>

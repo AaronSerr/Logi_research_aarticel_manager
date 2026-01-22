@@ -132,7 +132,7 @@ export default function ArticlePage() {
   const safeCancelEdit = () => {
     if (hasChanges) {
       // Show confirmation - reuse the pattern from sidebar
-      if (window.confirm('You have unsaved changes. Are you sure you want to cancel?')) {
+      if (window.confirm(t('error.unsavedChanges'))) {
         cancelEdit();
       }
     } else {
@@ -144,7 +144,7 @@ export default function ArticlePage() {
   useEffect(() => {
     const loadArticle = async () => {
       if (!id) {
-        setError('No article ID provided');
+        setError(t('error.noArticleId'));
         setLoadingArticle(false);
         return;
       }
@@ -154,7 +154,7 @@ export default function ArticlePage() {
         const loadedArticle = await articlesApi.getById(id);
 
         if (!loadedArticle) {
-          setError('Article not found');
+          setError(t('error.articleNotFound'));
           return;
         }
 
@@ -162,7 +162,7 @@ export default function ArticlePage() {
         setOriginalArticle(loadedArticle);
         populateFormData(loadedArticle);
       } catch (err: any) {
-        setError(err.message || 'Failed to load article');
+        setError(err.message || t('error.failedToLoad'));
       } finally {
         setLoadingArticle(false);
       }
@@ -311,17 +311,17 @@ export default function ArticlePage() {
     setSuccess(false);
 
     if (!formData.title.trim()) {
-      setError('Title is required');
+      setError(t('error.titleRequired'));
       return;
     }
 
     if (authorsInput.trim().length === 0) {
-      setError('At least one author is required');
+      setError(t('error.authorRequired'));
       return;
     }
 
     if (!formData.abstract.trim()) {
-      setError('Abstract is required');
+      setError(t('error.abstractRequired'));
       return;
     }
 
@@ -367,7 +367,7 @@ export default function ArticlePage() {
 
       setTimeout(() => setSuccess(false), 5000);
     } catch (err: any) {
-      setError(err.message || 'Failed to update article');
+      setError(err.message || t('error.failedToUpdate'));
     } finally {
       setLoading(false);
     }
@@ -399,7 +399,7 @@ export default function ArticlePage() {
     try {
       await articlesApi.openNote(id);
     } catch (err: any) {
-      setError('Failed to open note: ' + err.message);
+      setError(t('error.failedToOpenNote') + ': ' + err.message);
     }
   };
 

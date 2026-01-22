@@ -70,7 +70,7 @@ export default function EditArticle() {
   useEffect(() => {
     const loadArticle = async () => {
       if (!id) {
-        setError('No article ID provided');
+        setError(t('error.noArticleId'));
         setLoadingArticle(false);
         return;
       }
@@ -80,7 +80,7 @@ export default function EditArticle() {
         const loadedArticle = await articlesApi.getById(id);
 
         if (!loadedArticle) {
-          setError('Article not found');
+          setError(t('error.articleNotFound'));
           return;
         }
 
@@ -124,7 +124,7 @@ export default function EditArticle() {
         setUniversitiesInput(loadedArticle.universities?.map(u => u.name).join(', ') || '');
         setCompaniesInput(loadedArticle.companies?.map(c => c.name).join(', ') || '');
       } catch (err: any) {
-        setError(err.message || 'Failed to load article');
+        setError(err.message || t('error.failedToLoad'));
       } finally {
         setLoadingArticle(false);
       }
@@ -158,23 +158,23 @@ export default function EditArticle() {
     setSuccess(false);
 
     if (!id) {
-      setError('No article ID');
+      setError(t('error.noArticleId'));
       return;
     }
 
     // Validate required fields
     if (!formData.title.trim()) {
-      setError('Title is required');
+      setError(t('error.titleRequired'));
       return;
     }
 
     if (authorsInput.trim().length === 0) {
-      setError('At least one author is required');
+      setError(t('error.authorRequired'));
       return;
     }
 
     if (!formData.abstract.trim()) {
-      setError('Abstract is required');
+      setError(t('error.abstractRequired'));
       return;
     }
 
@@ -222,7 +222,7 @@ export default function EditArticle() {
         navigate(`/article/${id}`);
       }, 1500);
     } catch (err: any) {
-      setError(err.message || 'Failed to update article');
+      setError(err.message || t('error.failedToUpdate'));
     } finally {
       setLoading(false);
     }
@@ -264,7 +264,7 @@ export default function EditArticle() {
     try {
       await articlesApi.openNote(id);
     } catch (err: any) {
-      setError('Failed to open note: ' + err.message);
+      setError(t('error.failedToOpenNote') + ': ' + err.message);
     }
   };
 
